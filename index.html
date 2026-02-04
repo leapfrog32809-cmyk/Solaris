@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Solar System Logic Mission</title>
 
   <!-- Google Font -->
@@ -33,17 +33,19 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: url("starfield.jpg") center/cover fixed no-repeat;
+      background: url("starfield.jpg") center/cover fixed no-repeat, #020310;
       color: var(--text-main);
-      min-height: 100vh;
-      min-height: 100dvh;
-      overflow: auto;
+      height: 100vh;
+      height: 100dvh;
+      width: 100vw;
+      overflow: hidden; /* Prevent scrolling on body, handle inside app-shell */
       display: flex;
-      align-items: stretch;
+      align-items: center;
       justify-content: center;
     }
 
@@ -55,16 +57,19 @@
 
     .app-shell {
       width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
+      height: 100%;
       position: relative;
       overflow: hidden;
       padding: 16px;
-      min-height: 100vh;
-      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
     }
 
     .frame {
+      flex: 1;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
       border-radius: 26px;
       border: 1.5px solid rgba(255, 215, 0, 0.2);
       box-shadow: 0 22px 55px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 215, 0, 0.15);
@@ -74,19 +79,21 @@
         radial-gradient(circle at top left, rgba(108, 122, 255, 0.15), transparent 55%),
         radial-gradient(circle at bottom right, rgba(255, 215, 0, 0.12), transparent 55%),
         rgba(0, 0, 10, 0.96);
-      height: auto;
-      min-height: 540px;
-      max-height: 900px;
       display: grid;
       grid-template-rows: auto 1fr auto;
       position: relative;
       overflow: hidden;
     }
 
-    @media (max-height: 768px) {
+    /* Mobile handling for frame */
+    @media (max-width: 640px) {
+      .app-shell {
+        padding: 0;
+      }
       .frame {
-        min-height: auto;
-        max-height: none;
+        border-radius: 0;
+        border: none;
+        border-bottom: 1px solid rgba(255, 215, 0, 0.2);
       }
     }
 
@@ -98,18 +105,7 @@
       z-index: 40;
       background: linear-gradient(135deg, rgba(30, 45, 100, 0.15), rgba(15, 25, 60, 0.1));
       border-bottom: 1px solid rgba(255, 215, 0, 0.1);
-    }
-
-    .brand {
-      display: none;
-    }
-
-    .hud-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.75rem;
-      color: var(--text-muted);
+      flex-shrink: 0;
     }
 
     .btn-ghost {
@@ -126,6 +122,7 @@
       align-items: center;
       gap: 6px;
       transition: all 0.2s ease-out;
+      z-index: 100;
     }
 
     .btn-ghost:hover {
@@ -133,11 +130,6 @@
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.2);
       background: radial-gradient(circle at top, rgba(255, 255, 255, 0.3), transparent 60%),
                   rgba(10, 18, 54, 0.95);
-    }
-
-    .btn-ghost:active {
-      transform: translateY(0);
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
     }
 
     .btn-ghost[aria-pressed="true"] {
@@ -150,7 +142,12 @@
     main.stage {
       position: relative;
       overflow: hidden;
-      padding: 6px 20px 20px;
+      width: 100%;
+      height: 100%;
+      /* Center content */
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* Solar system scene */
@@ -167,12 +164,14 @@
 
     .solar-system {
       position: relative;
-      width: 100%;
-      max-width: 1200px;
-      height: 100%;
+      /* Fixed base size - we scale this entire div via JS to fit the screen */
+      width: 1000px; 
+      height: 1000px;
       transform-style: flat;
       transition: opacity var(--transition-med), filter var(--transition-med);
-      transform: scale(0.82);
+      /* Initial scale, overridden by JS */
+      transform: scale(1);
+      flex-shrink: 0;
     }
 
     .solar-system.dimmed {
@@ -180,74 +179,28 @@
       filter: blur(3px);
     }
 
-    .starfield {
+    .starfield, .deep-stars, .galaxy-clouds {
       position: absolute;
-      inset: -40px;
+      inset: -50%; /* Make larger to cover scaling */
+      width: 200%;
+      height: 200%;
+      pointer-events: none;
+    }
+
+    .starfield {
       background-image:
         radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.9) 1px, transparent 1px),
         radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.8) 1px, transparent 1px),
-        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.85) 1px, transparent 1px),
-        radial-gradient(circle at 20% 75%, rgba(200, 220, 255, 0.8) 1px, transparent 1px),
-        radial-gradient(circle at 65% 15%, rgba(255, 220, 200, 0.7) 1px, transparent 1px);
-      background-size: 250% 250%, 220% 220%, 280% 280%, 240% 240%, 260% 260%;
-      background-position: 0% 0%, 10% 20%, 5% 15%, 15% 25%, 20% 10%;
+        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.85) 1px, transparent 1px);
+      background-size: 250% 250%;
       opacity: 0.9;
       mix-blend-mode: screen;
-      pointer-events: none;
       animation: twinkle-stars 10s ease-in-out infinite alternate;
-      will-change: opacity;
-      contain: layout style paint;
     }
 
     @keyframes twinkle-stars {
       0% { opacity: 0.75; }
       100% { opacity: 0.95; }
-    }
-
-    .deep-stars {
-      position: absolute;
-      inset: -60px;
-      background-image:
-        radial-gradient(circle at 25% 10%, rgba(255, 255, 255, 0.95) 0, transparent 1px),
-        radial-gradient(circle at 70% 85%, rgba(255, 255, 255, 0.9) 0, transparent 1px),
-        radial-gradient(circle at 30% 60%, rgba(150, 200, 255, 0.85) 0, transparent 1px),
-        radial-gradient(circle at 88% 40%, rgba(255, 255, 255, 0.8) 0, transparent 1px),
-        radial-gradient(circle at 12% 35%, rgba(200, 255, 255, 0.8) 0, transparent 1px);
-      opacity: 0.8;
-      mix-blend-mode: screen;
-      filter: blur(0.5px);
-      pointer-events: none;
-      z-index: -1;
-      animation: twinkle 6s ease-in-out infinite alternate;
-      will-change: opacity;
-      contain: layout style paint;
-    }
-
-    @keyframes twinkle {
-      0%   { opacity: 0.5; }
-      100% { opacity: 0.7; }
-    }
-
-    .galaxy-clouds {
-      position: absolute;
-      inset: -80px;
-      background:
-        radial-gradient(circle at 5% 20%, rgba(140, 183, 255, 0.25), transparent 65%),
-        radial-gradient(circle at 85% 65%, rgba(248, 182, 255, 0.25), transparent 65%);
-      opacity: 0.18;
-      mix-blend-mode: screen;
-      pointer-events: none;
-      z-index: -2;
-      will-change: opacity;
-      contain: layout style paint;
-    }
-
-    .far-galaxy {
-      display: none;
-    }
-
-    .twinkle-layer {
-      display: none;
     }
 
     .orbit {
@@ -260,21 +213,16 @@
       pointer-events: none;
       box-shadow: 0 0 8px rgba(100, 180, 255, 0.35);
       will-change: transform;
-      contain: layout style;
     }
 
     .orbit.animate {
-      animation: orbit-rotate 28s linear infinite;
+      animation: orbit-rotate 60s linear infinite; /* Slowed down slightly for mobile readability */
       transform-origin: center center;
     }
 
     @keyframes orbit-rotate {
-      from {
-        transform: translate(-50%, -50%) rotateZ(0deg);
-      }
-      to {
-        transform: translate(-50%, -50%) rotateZ(360deg);
-      }
+      from { transform: translate(-50%, -50%) rotateZ(0deg); }
+      to { transform: translate(-50%, -50%) rotateZ(360deg); }
     }
 
     .star {
@@ -286,46 +234,32 @@
                   url("Textures/sun.jpg") center/cover no-repeat;
       box-shadow:
         0 0 50px rgba(255, 150, 40, 1),
-        0 0 100px rgba(255, 100, 20, 0.8),
-        0 0 150px rgba(255, 150, 40, 0.5);
+        0 0 100px rgba(255, 100, 20, 0.8);
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       cursor: pointer;
-      transition: all 0.25s ease-out;
       z-index: 4;
-      will-change: transform, box-shadow;
-      contain: layout style paint;
-      filter: brightness(1.2);
+      transition: all 0.25s ease-out;
     }
 
     .star::after {
-      content: "Click the Sun to begin";
+      content: "Click to start";
       position: absolute;
-      left: 130%;
       top: 50%;
-      transform: translateY(-50%);
+      left: 50%;
+      transform: translate(-50%, -50%);
       white-space: nowrap;
-      font-size: 0.85rem;
-      letter-spacing: 0.06em;
+      font-size: 0.9rem;
+      font-weight: 700;
       text-transform: uppercase;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: rgba(245, 247, 255, 0.6);
-    }
-
-    .star:hover {
-      transform: translate(-50%, -50%) scale(1.06);
-      box-shadow:
-        0 0 60px rgba(255, 206, 138, 0.95),
-        0 0 150px rgba(255, 180, 80, 0.9);
-      filter: saturate(1.2);
+      color: rgba(60, 20, 0, 0.8);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+      pointer-events: none;
     }
 
     .star:active {
-      transform: translate(-50%, -50%) scale(1.02);
+      transform: translate(-50%, -50%) scale(0.95);
     }
 
     .planet {
@@ -333,71 +267,70 @@
       border-radius: 50%;
       background-size: cover;
       background-position: center;
-      box-shadow:
-        0 6px 18px rgba(0, 0, 0, 0.8),
-        0 0 20px rgba(100, 180, 255, 0.2);
+      box-shadow: 0 0 10px rgba(100, 180, 255, 0.4);
       transform: translate(-50%, -50%);
-      transition: all var(--transition-fast);
-      will-change: transform;
-      contain: layout style paint;
-      backface-visibility: hidden;
-      perspective: 1000px;
+      transition: box-shadow 0.3s, filter 0.3s, width 0.3s, height 0.3s;
+      /* Ensure clickable area is decent */
+      cursor: pointer;
+    }
+
+    /* Invisible hit area expansion for mobile */
+    .planet::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px; /* Minimum touch target size */
+      height: 40px;
+      border-radius: 50%;
+      z-index: -1;
     }
 
     .planet::after {
       content: attr(data-name);
       position: absolute;
-      top: 108%;
+      top: 120%;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-      text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+      font-size: 0.9rem; /* Increased for legibility */
+      font-weight: 600;
+      color: var(--text-main);
+      text-shadow: 0 0 4px #000;
+      pointer-events: none;
+      white-space: nowrap;
+      opacity: 0.8;
     }
 
-    .planet.mercury { width: 10px; height: 10px; background-image: url("Textures/mercury.jpg"); }
-    .planet.venus   { width: 18px; height: 18px; background-image: url("Textures/venus.jpg"); }
-    .planet.earth   { width: 20px; height: 20px; background-image: url("Textures/earth.jpg"); }
-    .planet.mars    { width: 14px; height: 14px; background-image: url("Textures/mars.jpg"); }
-    .planet.jupiter { width: 42px; height: 42px; background-image: url("Textures/jupiter.jpg"); }
-    .planet.saturn  {
-      width: 36px;
-      height: 36px;
-      background-image: url("Textures/saturn.jpg");
-    }
-    .planet.uranus  { width: 26px; height: 26px; background-image: url("Textures/uranus.jpg"); }
-    .planet.neptune { width: 24px; height: 24px; background-image: url("Textures/neptune.jpg"); }
+    .planet.mercury { width: 14px; height: 14px; background-color: #888; background-image: url("Textures/mercury.jpg"); }
+    .planet.venus   { width: 22px; height: 22px; background-color: #e3bb76; background-image: url("Textures/venus.jpg"); }
+    .planet.earth   { width: 24px; height: 24px; background-color: #22aaff; background-image: url("Textures/earth.jpg"); }
+    .planet.mars    { width: 18px; height: 18px; background-color: #dd4422; background-image: url("Textures/mars.jpg"); }
+    .planet.jupiter { width: 50px; height: 50px; background-color: #d8ca9d; background-image: url("Textures/jupiter.jpg"); }
+    .planet.saturn  { width: 42px; height: 42px; background-color: #ead6b8; background-image: url("Textures/saturn.jpg"); }
+    .planet.uranus  { width: 32px; height: 32px; background-color: #d1e7e7; background-image: url("Textures/uranus.jpg"); }
+    .planet.neptune { width: 30px; height: 30px; background-color: #5b5ddf; background-image: url("Textures/neptune.jpg"); }
 
+    /* Saturn Ring visual */
     .planet.saturn::before {
       content: "";
       position: absolute;
-      inset: 50%;
-      width: 72px;
-      height: 26px;
-      margin-left: -36px;
-      margin-top: -13px;
+      top: 50%; left: 50%;
+      width: 180%; height: 50%;
+      transform: translate(-50%, -50%) rotate(-15deg);
       border-radius: 50%;
-      border: 3px solid rgba(219, 204, 170, 0.9);
-      border-left-color: rgba(219, 204, 170, 0.35);
-      border-right-color: rgba(219, 204, 170, 0.35);
-      transform: rotate(-18deg);
-      box-shadow: 0 0 10px rgba(219, 204, 170, 0.7);
+      border: 4px solid rgba(219, 204, 170, 0.6);
       pointer-events: none;
+      z-index: -1;
     }
 
     .planet.highlighted {
-      box-shadow:
-        0 0 18px rgba(255, 255, 255, 0.75),
-        0 0 45px rgba(103, 185, 255, 0.75);
-      filter: saturate(1.3);
-      transform: translate(-50%, -50%) scale(1.2);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.9);
+      filter: brightness(1.3);
+      z-index: 10;
     }
 
-    /* Planet positions will be driven by JavaScript to orbit around the Sun */
-
-    /* Orbits (used more in top-down) */
+    /* Fixed Orbit Sizes (Logic coordinates match these) */
     .orbit.mercury { width: 160px; height: 160px; }
     .orbit.venus   { width: 220px; height: 220px; }
     .orbit.earth   { width: 290px; height: 290px; }
@@ -407,880 +340,166 @@
     .orbit.uranus  { width: 720px; height: 720px; }
     .orbit.neptune { width: 820px; height: 820px; }
 
-    .asteroid-belt {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 410px;
-      height: 410px;
-      transform: translate(-50%, -50%) rotate(8deg);
-      border-radius: 50%;
-      background-image: url("asteroidbelt1.jpg");
-      background-size: cover;
-      background-position: center;
-      opacity: 0.35;
-      mix-blend-mode: multiply;
-      pointer-events: none;
-      filter: blur(0.3px);
-    }
-
-    /* Overlay countdown */
-    .overlay {
+    /* Overlays (Quiz, Summary, Countdown) */
+    .overlay, .quiz-wrapper, .summary-wrapper {
       position: absolute;
       inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.92));
+      background: rgba(0,0,0,0.85);
       opacity: 0;
       pointer-events: none;
-      transition: opacity var(--transition-med);
+      transition: opacity 0.4s ease;
       z-index: 60;
+      padding: 16px;
+      overflow-y: auto; /* Allow scrolling within overlays */
     }
 
-    .overlay.visible {
+    .visible {
       opacity: 1;
       pointer-events: auto;
     }
 
-    .countdown-panel {
-      max-width: 500px;
-      width: 90%;
-      padding: 26px 22px 22px;
+    .countdown-panel, .quiz-card, .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--accent-soft);
       border-radius: var(--radius-card);
-      background: radial-gradient(circle at top left, rgba(255, 215, 0, 0.18), transparent 55%),
-                  radial-gradient(circle at bottom right, rgba(120, 179, 255, 0.22), transparent 55%),
-                  rgba(4, 11, 30, 0.96);
-      box-shadow: var(--shadow-soft), 0 0 35px rgba(255, 215, 0, 0.12);
-      border: 1.5px solid rgba(255, 215, 0, 0.2);
-      text-align: center;
-    }
-
-    .countdown-title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .countdown-number {
-      font-size: 2.8rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-indent: 0.2em;
-      color: var(--accent);
-      text-shadow: 0 0 26px rgba(255, 212, 143, 0.8);
-      margin: 6px 0 8px;
-    }
-
-    .countdown-subtitle {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      margin-bottom: 14px;
-    }
-
-    .fact-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 0.82rem;
-      color: var(--text-main);
-      text-align: left;
-    }
-
-    .fact-list li {
-      padding: 6px 9px;
-      border-radius: 999px;
-      background: rgba(13, 20, 53, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    /* Quiz card */
-    .quiz-wrapper {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-      opacity: 0;
-      transition: opacity var(--transition-med);
-    }
-
-    .quiz-wrapper.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .quiz-card {
-      max-width: 720px;
+      padding: 20px;
+      max-width: 600px;
       width: 100%;
-      margin: 0 16px;
-      padding: 22px 22px 18px;
-      background:
-        url("dwarfplanets1.jpg") center/cover no-repeat,
-        var(--card-bg);
-      border-radius: var(--radius-card);
-      border: 1.5px solid rgba(255, 215, 0, 0.2);
-      box-shadow: var(--shadow-soft), 0 0 35px rgba(255, 215, 0, 0.12);
-      backdrop-filter: blur(18px);
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
-      gap: 18px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
       position: relative;
-      overflow: hidden;
     }
 
-    .quiz-card::before {
-      content: "";
-      position: absolute;
-      inset: -30%;
-      background-size: cover;
-      background-position: center;
-      opacity: 0.18;
-      mix-blend-mode: screen;
-      pointer-events: none;
-      transition: all var(--transition-med);
-      transform: scale(1.12);
-    }
-
-    .quiz-card[data-planet="Mercury"]::before { background-image: url("Textures/mercury.jpg"); }
-    .quiz-card[data-planet="Venus"]::before   { background-image: url("Textures/venus.jpg"); }
-    .quiz-card[data-planet="Earth"]::before   { background-image: url("Textures/earth.jpg"); }
-    .quiz-card[data-planet="Mars"]::before    { background-image: url("Textures/mars.jpg"); }
-    .quiz-card[data-planet="Jupiter"]::before { background-image: url("Textures/jupiter.jpg"); }
-    .quiz-card[data-planet="Saturn"]::before  { background-image: url("Textures/saturn.jpg"); }
-    .quiz-card[data-planet="Uranus"]::before  { background-image: url("Textures/uranus.jpg"); }
-    .quiz-card[data-planet="Neptune"]::before { background-image: url("Textures/neptune.jpg"); }
-
-    .quiz-main {
-      padding-right: 8px;
+    /* Quiz Layout */
+    .quiz-card {
+      max-height: 90vh;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
+      /* Base background style */
+      background-color: var(--card-bg);
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      /* Smooth transition when planet changes */
+      transition: background-image 0.5s ease-in-out;
     }
-
-    .quiz-badge-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    /* Performance: disable expensive animations in top-down view */
-    .solar-system.top-down .starfield,
-    .solar-system.top-down .deep-stars,
-    .solar-system.top-down .twinkle-layer {
-      animation: none !important;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .solar-system.top-down .orbit {
-      animation: none !important;
-      border-color: rgba(100, 180, 255, 0.2);
-      box-shadow: none;
-    }
-
-    .quiz-planet-label {
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--text-muted);
-    }
-
-    .quiz-question-heading {
-      font-size: 1.05rem;
-      font-weight: 600;
-    }
+    
+    /* Planet-specific backgrounds with dark overlay for readability */
+    .quiz-card[data-planet="Mercury"] { background-image: linear-gradient(rgba(7,11,30,0.88), rgba(7,11,30,0.94)), url("Textures/mercury.jpg"); }
+    .quiz-card[data-planet="Venus"]   { background-image: linear-gradient(rgba(7,11,30,0.88), rgba(7,11,30,0.94)), url("Textures/venus.jpg"); }
+    .quiz-card[data-planet="Earth"]   { background-image: linear-gradient(rgba(7,11,30,0.88), rgba(7,11,30,0.94)), url("Textures/earth.jpg"); }
+    .quiz-card[data-planet="Mars"]    { background-image: linear-gradient(rgba(7,11,30,0.88), rgba(7,11,30,0.94)), url("Textures/mars.jpg"); }
+    .quiz-card[data-planet="Jupiter"] { background-image: linear-gradient(rgba(7,11,30,0.88), rgba(7,11,30,0.94)), url("Textures/jupiter.jpg"); }
+    .quiz-card[data-planet="Saturn"]  { background-image: linear-gradient(rgba(7,11,30,0.88), rgba(7,11,30,0.94)), url("Textures/saturn.jpg"); }
+    .quiz-card[data-planet="Uranus"]  { background-image: linear-gradient(rgba(7,11,30,0.88), rgba(7,11,30,0.94)), url("Textures/uranus.jpg"); }
+    .quiz-card[data-planet="Neptune"] { background-image: linear-gradient(rgba(7,11,30,0.88), rgba(7,11,30,0.94)), url("Textures/neptune.jpg"); }
 
     .truth-table {
-      margin-top: 10px;
-      border-collapse: collapse;
       width: 100%;
-      font-size: 0.82rem;
-      background: linear-gradient(135deg, rgba(15, 25, 60, 0.8), rgba(10, 18, 50, 0.9));
+      border-collapse: collapse;
+      margin: 10px 0;
+      background: rgba(0,0,0,0.3);
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
+      font-size: 0.9rem;
     }
-
-    .truth-table thead {
-      background: linear-gradient(135deg, rgba(20, 35, 80, 0.95), rgba(15, 28, 70, 0.95));
-      border-bottom: 1.5px solid rgba(255, 215, 0, 0.15);
+    
+    .truth-table th, .truth-table td {
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      text-align: left;
     }
-
-    .truth-table th,
-    .truth-table td {
-      padding: 8px 10px;
-      border: 1px solid rgba(255, 215, 0, 0.08);
-    }
-
-    .truth-table tbody tr:nth-child(odd) {
-      background: rgba(10, 18, 50, 0.85);
-    }
-
-    .truth-table tbody tr:nth-child(even) {
-      background: rgba(8, 15, 42, 0.85);
-    }
+    
+    .truth-table th { background: rgba(255,255,255,0.05); }
 
     .answer-buttons {
-      margin-top: 12px;
       display: flex;
-      align-items: center;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .btn-answer {
-      flex: 0 0 auto;
-      min-width: 90px;
-      padding: 10px 16px;
-      border-radius: 999px;
-      border: 1.5px solid rgba(255, 215, 0, 0.25);
-      background: linear-gradient(135deg, rgba(30, 45, 100, 0.8), rgba(15, 25, 60, 0.9));
-      color: var(--text-main);
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.2s ease-out;
-    }
-
-    .btn-answer:hover {
-      background: linear-gradient(135deg, rgba(50, 70, 140, 0.95), rgba(25, 40, 90, 1));
-      transform: translateY(-2px);
-      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.15);
-      border-color: rgba(255, 215, 0, 0.4);
-    }
-
-    .btn-answer:active {
-      transform: translateY(0);
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
-    }
-
-    .btn-answer[disabled] {
-      opacity: 0.5;
-      cursor: default;
-      box-shadow: none;
-      transform: none;
-    }
-
-    .answer-status {
-      margin-top: 8px;
-      padding: 6px 8px;
+      flex: 1;
+      padding: 12px;
       border-radius: 8px;
-      font-size: 0.86rem;
-      font-weight: 600;
-    }
-
-    .answer-status.correct {
-      color: #4ade80;
-      background: rgba(74, 222, 128, 0.15);
-      border-left: 3px solid #4ade80;
-      padding-left: 10px;
-    }
-
-    .answer-status.incorrect {
-      color: #ff5577;
-      background: rgba(255, 85, 119, 0.15);
-      border-left: 3px solid #ff5577;
-      padding-left: 10px;
-    }
-
-    .quiz-meta {
-      border-radius: 14px;
-      padding: 12px 14px;
-      background: linear-gradient(135deg, rgba(10, 20, 50, 0.8), rgba(5, 12, 35, 0.9));
-      border: 1.5px solid rgba(255, 215, 0, 0.15);
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.08);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .quiz-meta.hidden {
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(8px);
-      transition: all var(--transition-med);
-    }
-
-    .quiz-meta.visible {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    .quiz-meta h3 {
-      font-size: 0.86rem;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .quiz-meta .fact-label {
-      font-weight: 600;
+      border: 1px solid var(--accent);
+      background: rgba(255, 215, 0, 0.1);
       color: var(--accent);
-      font-size: 0.78rem;
-      margin-bottom: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      min-width: 80px;
     }
 
-    .quiz-meta p {
-      line-height: 1.45;
-    }
-
-    .quiz-footer {
-      margin-top: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
+    .btn-answer:hover { background: var(--accent); color: #000; }
+    .btn-answer:disabled { opacity: 0.5; pointer-events: none; }
 
     .btn-next {
-      padding: 10px 20px;
-      border-radius: 999px;
+      background: var(--accent);
+      color: #000;
       border: none;
+      padding: 12px 24px;
+      border-radius: 99px;
+      font-weight: bold;
       cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
+      width: 100%;
+      margin-top: 10px;
       text-transform: uppercase;
-      background: linear-gradient(135deg, #ffd700, #ffaa00);
-      color: #1a1000;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.3);
-      transition: all 0.2s ease-out;
+      letter-spacing: 1px;
     }
-
-    .btn-next:hover:not([disabled]) {
-      transform: translateY(-2px);
-      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 215, 0, 0.5);
-      filter: brightness(1.08);
-    }
-
-    .btn-next:active:not([disabled]) {
-      transform: translateY(0);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.25);
-    }
-
-    .btn-next[disabled] {
-      opacity: 0.5;
-      cursor: default;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-    }
-
-    /* Summary */
-    .summary-wrapper {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity var(--transition-med);
-      z-index: 55;
-    }
-
-    .summary-wrapper.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .summary-card {
-      max-width: 540px;
-      width: 90%;
-      padding: 24px 22px 18px;
-      border-radius: var(--radius-card);
-      background:
-        radial-gradient(circle at top left, rgba(255, 215, 0, 0.18), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(120, 179, 255, 0.22), transparent 55%),
-        rgba(3, 9, 26, 0.97);
-      border: 1.5px solid rgba(255, 215, 0, 0.2);
-      box-shadow: var(--shadow-soft), 0 0 35px rgba(255, 215, 0, 0.12);
-      text-align: center;
-    }
-
-    .summary-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .summary-score {
-      font-size: 2.1rem;
-      font-weight: 700;
-      color: var(--accent);
-      text-shadow: 0 0 30px rgba(255, 217, 144, 0.9);
-      margin: 4px 0;
-    }
-
-    .summary-detail {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      margin-bottom: 14px;
-    }
-
-    .summary-metrics {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      margin-bottom: 18px;
-      font-size: 0.8rem;
-    }
-
-    .summary-metrics span {
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(7, 13, 39, 0.96);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-    }
-
-    .summary-actions {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    
+    .btn-next:disabled { background: #555; color: #999; }
 
     .btn-outline {
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.24);
       background: transparent;
-      color: var(--text-main);
+      border: 1px solid white;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 99px;
       cursor: pointer;
-      font-size: 0.86rem;
-      font-weight: 500;
-      transition: all 0.16s ease-out;
+      margin: 5px;
     }
 
-    .btn-outline:hover {
-      background: rgba(13, 23, 68, 0.96);
-      transform: translateY(-1px);
-      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55);
-    }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); }
 
-    .btn-outline:active {
-      transform: translateY(0);
-      box-shadow: none;
+    .quiz-meta {
+      background: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 10px;
     }
+    
+    .hidden { display: none; }
+
+    .answer-status {
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .answer-status.correct { background: rgba(74, 222, 128, 0.2); color: var(--success); }
+    .answer-status.incorrect { background: rgba(255, 85, 119, 0.2); color: var(--error); }
 
     footer.app-footer {
-      display: none;
+      padding: 10px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+      background: rgba(0,0,0,0.4);
+      flex-shrink: 0;
     }
 
-    /* Responsive */
-    @media (max-width: 840px) {
-      .frame {
-        grid-template-rows: auto 1fr auto;
-        min-height: 560px;
-      }
-
-      .quiz-card {
-        grid-template-columns: minmax(0, 1fr);
-        padding: 18px 16px 16px;
-      }
-
-      .quiz-main {
-        padding-right: 0;
-      }
-
-      .quiz-footer {
-        flex-direction: column-reverse;
-        align-items: flex-start;
-      }
-
-      .summary-card {
-        padding-inline: 18px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      :root {
-        font-size: 14px;
-      }
-
-      .app-shell {
-        padding: 8px;
-      }
-
-      .frame {
-        height: calc(100vh - 16px);
-        border-radius: 16px;
-      }
-
-      header.app-header {
-        padding: 12px 16px 6px;
-      }
-
-      .hud-right {
-        font-size: 0.65rem;
-        gap: 8px;
-      }
-
-      .solar-system {
-        transform: scale(0.65);
-      }
-
-      .quiz-card {
-        padding: 14px 12px 12px;
-      }
-
-      .quiz-main {
-        gap: 12px;
-      }
-
-      .quiz-planet-label {
-        font-size: 0.9rem;
-      }
-
-      .quiz-question-heading {
-        font-size: 1rem;
-        line-height: 1.4;
-      }
-
-      .truth-table {
-        font-size: 0.85rem;
-      }
-
-      .truth-table td,
-      .truth-table th {
-        padding: 8px 6px;
-      }
-
-      .answer-buttons {
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .btn-answer,
-      .btn-outline {
-        padding: 10px 12px;
-        font-size: 0.9rem;
-        border-radius: 8px;
-      }
-
-      .quiz-footer {
-        gap: 8px;
-        padding: 0;
-      }
-
-      .answer-panel {
-        padding: 12px;
-        gap: 8px;
-      }
-
-      .summary-card {
-        padding: 16px 12px;
-      }
-
-      .summary-score {
-        font-size: 2rem;
-      }
-
-      .app-footer {
-        padding: 8px 12px;
-        font-size: 0.65rem;
-      }
-    }
-
-    @media (max-width: 640px) {
-      :root {
-        font-size: 13px;
-      }
-
-      body {
-        padding: 0;
-      }
-
-      .app-shell {
-        padding: 4px;
-      }
-
-      .frame {
-        height: calc(100vh - 8px);
-        border-radius: 12px;
-        min-height: 100vh;
-      }
-
-      header.app-header {
-        padding: 10px 12px 4px;
-      }
-
-      .brand {
-        display: none;
-      }
-
-      .hud-right {
-        display: none;
-      }
-
-      .solar-system {
-        transform: scale(0.55);
-      }
-
-      main.stage {
-        padding: 4px 10px 10px;
-      }
-
-      .solar-system-wrapper {
-        min-height: 280px;
-      }
-
-      .quiz-wrapper {
-        opacity: 1 !important;
-        pointer-events: auto !important;
-      }
-
-      .quiz-card {
-        border-radius: 12px;
-        padding: 12px 10px 10px;
-      }
-
-      .quiz-main {
-        gap: 10px;
-      }
-
-      .quiz-badge-row {
-        flex-direction: column;
-        gap: 6px;
-      }
-
-      .quiz-planet-label {
-        font-size: 0.85rem;
-      }
-
-      .quiz-question-heading {
-        font-size: 0.9rem;
-        line-height: 1.3;
-        font-weight: 600;
-      }
-
-      .truth-table {
-        font-size: 0.8rem;
-        margin: 8px 0;
-      }
-
-      .truth-table thead {
-        font-size: 0.75rem;
-      }
-
-      .truth-table td,
-      .truth-table th {
-        padding: 6px 4px;
-      }
-
-      .truth-table th:first-child {
-        width: 65%;
-      }
-
-      .truth-table th:last-child {
-        width: 35%;
-      }
-
-      .answer-buttons {
-        flex-direction: column;
-        gap: 6px;
-      }
-
-      .btn-answer {
-        padding: 10px 8px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        border-radius: 6px;
-        min-height: 40px;
-        touch-action: manipulation;
-      }
-
-      .btn-outline {
-        padding: 8px 10px;
-        font-size: 0.8rem;
-        border-radius: 6px;
-      }
-
-      .quiz-footer {
-        flex-direction: column-reverse;
-        gap: 6px;
-        padding-top: 8px;
-      }
-
-      .answer-panel {
-        padding: 10px;
-        gap: 6px;
-        border-radius: 8px;
-      }
-
-      .answer-status {
-        font-size: 0.9rem;
-        font-weight: 600;
-      }
-
-      .explanation-text {
-        font-size: 0.8rem;
-        line-height: 1.3;
-      }
-
-      .planet-fact-text {
-        font-size: 0.75rem;
-        line-height: 1.3;
-      }
-
-      .summary-wrapper {
-        padding: 0;
-      }
-
-      .summary-card {
-        padding: 14px 10px;
-        border-radius: 12px;
-      }
-
-      .summary-score {
-        font-size: 2.5rem;
-      }
-
-      .summary-detail {
-        font-size: 0.85rem;
-      }
-
-      .summary-tier {
-        font-size: 0.9rem;
-      }
-
-      .star::after {
-        font-size: 0.6rem;
-        padding: 4px 6px;
-        left: 120%;
-        top: 55%;
-      }
-
-      .app-footer {
-        padding: 6px 8px;
-        flex-direction: column;
-        gap: 4px;
-        font-size: 0.6rem;
-      }
-
-      .footer-left,
-      .footer-right {
-        width: 100%;
-        text-align: center;
-      }
-
-      .countdown-panel {
-        width: 90%;
-        padding: 16px 14px 14px;
-      }
-
-      .countdown-title {
-        font-size: 1.1rem;
-        margin-bottom: 8px;
-      }
-
-      .countdown-number {
-        font-size: 2.2rem;
-        font-weight: 700;
-      }
-
-      .countdown-facts {
-        font-size: 0.75rem;
-        gap: 6px;
-      }
-
-      .countdown-facts li {
-        line-height: 1.3;
-      }
-    }
-
+    /* Mobile Text Sizes */
     @media (max-width: 480px) {
-      :root {
-        font-size: 12px;
-      }
-
-      .frame {
-        border-radius: 8px;
-      }
-
-      .quiz-card {
-        padding: 10px 8px;
-      }
-
-      .solar-system {
-        transform: scale(0.48);
-      }
-
-      .quiz-question-heading {
-        font-size: 0.85rem;
-      }
-
-      .truth-table {
-        font-size: 0.75rem;
-      }
-
-      .btn-answer {
-        padding: 9px 6px;
-        font-size: 0.8rem;
-        min-height: 38px;
-      }
-
-      .summary-score {
-        font-size: 2rem;
-      }
-
-      .answer-status {
-        font-size: 0.85rem;
-      }
-
-      .quiz-wrapper.visible {
-        position: fixed;
-        inset: 0;
-        z-index: 100;
-      }
+      .countdown-number { font-size: 3rem; color: var(--accent); }
+      .quiz-card { padding: 15px; }
+      .planet::after { font-size: 0.8rem; top: 115%; }
     }
 
-    @media (max-height: 600px) {
-      .frame {
-        max-height: none;
-        height: auto;
-      }
-
-      main.stage {
-        min-height: 300px;
-      }
-
-      .solar-system {
-        transform: scale(0.5);
-      }
-
-      .quiz-card {
-        padding: 10px;
-      }
-    }
-
-    /* Additional mobile touch improvements */
-    @media (hover: none) and (pointer: coarse) {
-      .btn-answer,
-      .btn-outline,
-      .btn-ghost,
-      .star {
-        min-height: 44px;
-        min-width: 44px;
-        padding: 12px;
-      }
-
-      .btn-answer:active,
-      .btn-outline:active,
-      .btn-ghost:active {
-        opacity: 0.8;
-        background: var(--accent);
-      }
-    }
   </style>
 </head>
 <body>
@@ -1293,13 +512,12 @@
       </header>
 
       <main class="stage">
-        <div class="solar-system-wrapper">
-          <div id="solarSystem" class="solar-system side-view">
+        <div class="solar-system-wrapper" id="sceneWrapper">
+          <div id="solarSystem" class="solar-system">
             <div class="galaxy-clouds"></div>
             <div class="deep-stars"></div>
             <div class="starfield"></div>
-            <div class="asteroid-belt"></div>
-
+            
             <!-- Orbits -->
             <div class="orbit mercury animate"></div>
             <div class="orbit venus animate"></div>
@@ -1328,78 +546,73 @@
         <!-- Countdown overlay -->
         <div id="countdownOverlay" class="overlay" aria-hidden="true">
           <div class="countdown-panel">
-            <div class="countdown-title">Ready?</div>
-            <div id="countdownNumber" class="countdown-number">5</div>
-            <div class="countdown-subtitle">Your logic mission through the solar system begins in:</div>
-            <ul id="countdownFacts" class="fact-list"></ul>
+            <h2 style="font-size: 1.5rem; margin-bottom:10px;">Ready?</h2>
+            <div id="countdownNumber" class="countdown-number" style="font-size:3rem; font-weight:bold; color:var(--accent);">5</div>
+            <p style="color:var(--text-muted); margin:10px 0;">Your logic mission begins in:</p>
+            <ul id="countdownFacts" style="text-align:left; font-size:0.9rem; padding-left:20px; line-height:1.5;"></ul>
           </div>
         </div>
 
         <!-- Quiz card -->
         <div id="quizWrapper" class="quiz-wrapper" aria-hidden="true">
           <article id="quizCard" class="quiz-card" data-planet="">
-            <div class="quiz-card-inner">
-              <section class="quiz-main">
-                <div class="quiz-badge-row">
-                  <span class="quiz-planet-label">Planet <span id="quizPlanetName"></span></span>
-                </div>
-                <div class="quiz-question-heading" id="questionText"></div>
+            <div class="quiz-badge-row" style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--text-muted); font-size:0.8rem;">
+              <span>LOGIC MODULE</span>
+              <span>Planet <span id="quizPlanetName" style="color:var(--accent)"></span></span>
+            </div>
+            
+            <div class="quiz-question-heading" id="questionText" style="font-weight:600; margin-bottom:10px;"></div>
 
-                <table class="truth-table" aria-label="Truth table for your answer">
-                  <thead>
-                    <tr>
-                      <th style="width: 70%;">Proposition about this planet</th>
-                      <th style="width: 30%;">Truth value in last column</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td id="truthFactCell"></td>
-                      <td id="truthAnswerCell">?</td>
-                    </tr>
-                  </tbody>
-                </table>
+            <table class="truth-table">
+              <thead>
+                <tr>
+                  <th style="width: 75%;">Proposition</th>
+                  <th style="width: 25%;">Truth</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td id="truthFactCell"></td>
+                  <td id="truthAnswerCell" style="text-align:center; font-weight:bold; color:var(--accent);">?</td>
+                </tr>
+              </tbody>
+            </table>
 
-                <div class="answer-buttons">
-                  <button id="btnTrue" class="btn-answer" type="button">True (T)</button>
-                  <button id="btnFalse" class="btn-answer" type="button">False (F)</button>
-                </div>
-                <div id="answerStatus" class="answer-status"></div>
-              </section>
+            <div class="answer-buttons">
+              <button id="btnTrue" class="btn-answer" type="button">True (T)</button>
+              <button id="btnFalse" class="btn-answer" type="button">False (F)</button>
+            </div>
+            
+            <div id="answerStatus" class="answer-status"></div>
 
-              <aside class="quiz-meta hidden" id="quizMeta">
-                <h3>Explanation</h3>
-                <div>
-                  <div class="fact-label">Why this is correct or incorrect:</div>
-                  <p id="explanationText"></p>
-                </div>
-                <div>
-                  <div class="fact-label">Surprising fact about this planet:</div>
-                  <p id="planetFactText"></p>
-                </div>
-                <div class="quiz-footer">
-                  <span id="progressText">Planet 1 of 8</span>
-                  <button id="btnNext" class="btn-next" type="button" disabled>Next planet</button>
-                </div>
-              </aside>
+            <div class="quiz-meta hidden" id="quizMeta">
+              <h3 style="font-size:0.9rem; color:var(--accent); margin-bottom:5px;">Explanation</h3>
+              <p id="explanationText" style="font-size:0.85rem; margin-bottom:10px;"></p>
+              
+              <h3 style="font-size:0.9rem; color:var(--accent); margin-bottom:5px;">Did you know?</h3>
+              <p id="planetFactText" style="font-size:0.85rem;"></p>
+              
+              <div style="margin-top:15px; display:flex; flex-direction:column; gap:5px;">
+                <span id="progressText" style="font-size:0.7rem; color:var(--text-muted); text-align:center;">Planet 1 of 8</span>
+                <button id="btnNext" class="btn-next" type="button" disabled>Next Planet</button>
+              </div>
             </div>
           </article>
         </div>
 
         <!-- Summary -->
         <div id="summaryWrapper" class="summary-wrapper" aria-hidden="true">
-          <section class="summary-card">
-            <div class="summary-title">Mission summary</div>
-            <div id="summaryScore" class="summary-score"></div>
-            <div id="summaryDetail" class="summary-detail"></div>
-            <div class="summary-metrics">
-              <span id="summaryAccuracy"></span>
-              <span id="summaryTier"></span>
+          <section class="summary-card" style="text-align:center;">
+            <h2 style="font-size: 1.5rem; margin-bottom:10px;">Mission Complete</h2>
+            <div id="summaryScore" style="font-size: 3rem; font-weight:700; color:var(--accent);"></div>
+            <p id="summaryDetail" style="color:var(--text-muted); margin:10px 0;"></p>
+            <div style="display:flex; justify-content:center; gap:10px; margin:15px 0; font-size:0.9rem;">
+              <span id="summaryAccuracy" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:99px;"></span>
+              <span id="summaryTier" style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:99px;"></span>
             </div>
             <div class="summary-actions">
-              <button id="btnRestart" class="btn-outline" type="button">Run mission again</button>
-              <!-- ADDED BUTTON HERE -->
-              <button id="btnVisitSite" class="btn-outline" type="button">Visit Solar System Site</button>
+              <button id="btnRestart" class="btn-outline" type="button">Run Again</button>
+              <button id="btnVisitSite" class="btn-outline" type="button" style="border-color:var(--accent); color:var(--accent);">Back to Main Site</button>
             </div>
           </section>
         </div>
@@ -1411,304 +624,93 @@
       </main>
 
       <footer class="app-footer">
-        <div class="footer-left">
-          <span class="footer-pill">Perspective: side-on orbit view &rarr; top-down quiz view</span>
-        </div>
-        <div class="footer-right">
-          <span>Questions are based on information from NASA educational resources.</span>
-        </div>
+        <div>Side-on view &rarr; Top-down logic view</div>
+        <div>Based on NASA educational resources.</div>
       </footer>
     </div>
   </div>
 
   <script>
     (function () {
+      // --- DATA ---
       const planetQuestionsBank = {
         Mercury: [
           {
             question: "Statement P: Mercury has a thick atmosphere.\nStatement Q: Mercury has extreme temperature variations.\n\nEvaluate: ¬P ∧ Q",
-            operator: "Negation & Conjunction (¬P ∧ Q)",
-            p: "Mercury does NOT have a thick atmosphere",
-            q: "Mercury has extreme temperature variations",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Mercury possesses a thin exosphere made up of atoms blasted off the surface. Day temperatures reach 800°F (430°C) while nighttime temperatures drop to -290°F (-180°C). Both statements are true.",
-            funFact: "Mercury has the most extreme temperature swings in the solar system due to its thin atmosphere."
+            p: "Mercury does NOT have a thick atmosphere", q: "Mercury has extreme temperature variations",
+            pValue: true, qValue: true, correctIsTrue: true,
+            explanation: "Mercury possesses a thin exosphere. Day: 800°F, Night: -290°F. Both statements are effectively true.",
+            funFact: "Mercury has the most extreme temperature swings in the solar system."
           },
           {
-            question: "Statement P: Mercury is the closest planet to the Sun.\nStatement Q: Mercury is the hottest planet in the solar system.\n\nEvaluate: P ∧ Q",
-            operator: "Conjunction (∧)",
-            p: "Mercury is the closest planet to the Sun",
-            q: "Mercury is the hottest planet",
-            pValue: true,
-            qValue: false,
-            correctIsTrue: false,
-            explanation: "Mercury is the closest planet to the Sun, but Venus is the hottest due to its thick atmosphere. Since Q is false, P ∧ Q = FALSE.",
-            funFact: "Venus is the hottest planet, not Mercury, despite being farther from the Sun."
-          },
-          {
-            question: "Statement P: Mercury has a metallic core.\nStatement Q: Mercury has many impact craters.\nStatement R: Mercury has a magnetic field.\n\nEvaluate: P ∧ Q ∧ R",
-            operator: "Conjunction (∧)",
-            p: "Mercury has a metallic core",
-            q: "Mercury has many impact craters",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Mercury has a large metallic core (85% of planet's radius), its surface is scarred by many impact craters, and it has a magnetic field with 1% Earth's strength. All three statements are true.",
-            funFact: "Mercury's huge metallic core makes it one of the densest planets relative to its size."
+            question: "Statement P: Mercury is closest to the Sun.\nStatement Q: Mercury is the hottest planet.\n\nEvaluate: P ∧ Q",
+            p: "Closest to Sun", q: "Hottest planet",
+            pValue: true, qValue: false, correctIsTrue: false,
+            explanation: "Venus is hotter due to atmosphere. P is True, Q is False.",
+            funFact: "Venus is hotter than Mercury despite being farther away."
           }
         ],
         Venus: [
           {
-            question: "Statement P: Venus has the hottest surface temperature in the solar system (excluding Sun).\nStatement Q: Venus has a thick atmosphere with carbon dioxide.\n\nEvaluate: P ↔ Q",
-            operator: "Biconditional (↔)",
-            p: "Venus has the hottest surface temperature (excluding Sun)",
-            q: "Venus has a thick CO₂ atmosphere",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Venus has the hottest surface in the solar system apart from the Sun, with an atmosphere mostly of carbon dioxide creating extreme greenhouse effect. Both statements are true.",
-            funFact: "Venus's atmosphere is 90 times denser than Earth's and creates a surface temperature hot enough to melt lead."
-          },
-          {
-            question: "Statement P: Venus rotates the same direction as Earth.\nStatement Q: Venus day is shorter than its year.\n\nEvaluate: P ∨ Q",
-            operator: "Disjunction (∨)",
-            p: "Venus rotates the same direction as Earth",
-            q: "Venus day is shorter than its year",
-            pValue: false,
-            qValue: false,
-            correctIsTrue: false,
-            explanation: "Venus rotates backwards and has a longer day than its year. Both statements are false, so P ∨ Q = FALSE.",
-            funFact: "Venus has a retrograde rotation, meaning the Sun rises in the west and sets in the east."
-          },
-          {
-            question: "Statement P: Venus has its own internally generated magnetic field.\nStatement Q: Venus has thick carbon dioxide clouds.\n\nEvaluate: P ∧ Q",
-            operator: "Conjunction (∧)",
-            p: "Venus has its own internally generated magnetic field",
-            q: "Venus has thick CO₂ clouds",
-            pValue: false,
-            qValue: true,
-            correctIsTrue: false,
-            explanation: "Venus does not have its own internally generated magnetic field, but it does have thick CO₂ clouds. Since P is false, P ∧ Q = FALSE.",
-            funFact: "Venus's induced magnetic field is created by solar wind interactions with its upper atmosphere."
+            question: "Statement P: Venus rotates clockwise (retrograde).\nStatement Q: A day on Venus is shorter than a year on Venus.\n\nEvaluate: P ∧ Q",
+            pValue: true, qValue: false, correctIsTrue: false,
+            explanation: "Venus rotates backwards (P=True), but very slowly. Its day (243 Earth days) is longer than its year (225 Earth days) (Q=False).",
+            funFact: "Venus is the only planet where a day is longer than a year."
           }
         ],
         Earth: [
           {
-            question: "Statement P: Earth has liquid water in its atmosphere.\nStatement Q: Earth supports complex life.\n\nEvaluate: P ∧ Q",
-            operator: "Conjunction (∧)",
-            p: "Earth has liquid water in its atmosphere only",
-            q: "Earth supports complex life",
-            pValue: false,
-            qValue: true,
-            correctIsTrue: false,
-            explanation: "Earth has liquid water on its surface (not just atmosphere). Although Q is true, since P is false, P ∧ Q = FALSE.",
-            funFact: "Liquid water on Earth's surface, not just in atmosphere, is essential for life."
-          },
-          {
-            question: "Statement P: Earth is the largest planet in the solar system.\nStatement Q: Earth has one moon.\nStatement R: Earth has oxygen in atmosphere.\n\nEvaluate: P ∧ Q ∧ R",
-            operator: "Conjunction (∧)",
-            p: "Earth is the largest planet",
-            q: "Earth has one moon",
-            pValue: false,
-            qValue: true,
-            correctIsTrue: false,
-            explanation: "Earth is not the largest planet (Jupiter is). Although Q and R are true, since P is false, P ∧ Q ∧ R = FALSE.",
-            funFact: "Jupiter is so massive that over 1,000 Earths could fit inside it."
-          },
-          {
-            question: "Statement P: Earth is the largest rocky planet in the solar system.\nStatement Q: Earth is the largest planet in the solar system overall.\n\nEvaluate: P ∧ Q",
-            operator: "Conjunction (∧)",
-            p: "Earth is the largest rocky planet",
-            q: "Earth is the largest planet overall",
-            pValue: true,
-            qValue: false,
-            correctIsTrue: false,
-            explanation: "Earth is the largest rocky planet, but it is not the largest planet overall. Since Q is false, P ∧ Q = FALSE.",
-            funFact: "Jupiter is by far the largest planet in our solar system."
+            question: "Statement P: Earth has liquid water.\nStatement Q: Earth has two moons.\n\nEvaluate: P → Q",
+            pValue: true, qValue: false, correctIsTrue: false,
+            explanation: "Earth has water (True), but only one moon (False). True → False is False.",
+            funFact: "Earth is the only planet known to harbor life."
           }
         ],
         Mars: [
           {
-            question: "Statement P: Mars has liquid water on its surface today.\nStatement Q: Mars has evidence of ancient water flows.\n\nEvaluate: P ∨ Q",
-            operator: "Disjunction (∨)",
-            p: "Mars has liquid water on its surface today",
-            q: "Mars has evidence of ancient water flows",
-            pValue: false,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Mars' thin atmosphere prevents liquid water from existing long on the surface today, but there is abundant evidence of ancient river valleys, deltas, and lakebeds from about 3.5 billion years ago. Q is true, so the disjunction is TRUE.",
-            funFact: "Mars had a much thicker atmosphere and warmer climate billions of years ago when water flowed freely."
-          },
-          {
-            question: "Statement P: Mars has a strong global magnetic field.\nStatement Q: Mars atmosphere blocks solar radiation.\n\nEvaluate: P ∨ Q",
-            operator: "Disjunction (∨)",
-            p: "Mars has a strong global magnetic field",
-            q: "Mars atmosphere blocks solar radiation",
-            pValue: false,
-            qValue: false,
-            correctIsTrue: false,
-            explanation: "Mars lacks a global magnetic field and has a thin atmosphere that offers little protection. Both statements are false, so P ∨ Q = FALSE.",
-            funFact: "Mars lost its global magnetic field billions of years ago, exposing it to solar radiation."
-          },
-          {
-            question: "Statement P: Mars has two moons.\nStatement Q: Mars has a red appearance.\nStatement R: Mars has polar ice caps made only of water ice.\n\nEvaluate: (P ∧ Q) ∧ ¬R",
-            operator: "Conjunction & Negation ((P ∧ Q) ∧ ¬R)",
-            p: "Mars has two moons",
-            q: "Mars has a red appearance",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Mars has two moons (Phobos and Deimos), appears red due to iron oxide, and has polar ice caps containing both water ice and frozen carbon dioxide (not only water ice). P∧Q is TRUE, R is FALSE so ¬R is TRUE. Result is TRUE.",
-            funFact: "Mars's two small moons, Phobos and Deimos, are named after the Greek gods of fear and panic."
+            question: "Statement P: Mars is the Red Planet.\nStatement Q: Mars has two moons.\n\nEvaluate: P ∧ Q",
+            pValue: true, qValue: true, correctIsTrue: true,
+            explanation: "Mars appears red due to iron oxide. It has two moons: Phobos and Deimos.",
+            funFact: "Mars is home to Olympus Mons, the tallest volcano in the solar system."
           }
         ],
         Jupiter: [
           {
-            question: "Statement P: Jupiter is the largest planet in the solar system.\nStatement Q: Jupiter has the strongest magnetic field of all planets.\n\nEvaluate: P → Q",
-            operator: "Conditional (→)",
-            p: "Jupiter is the largest planet in the solar system",
-            q: "Jupiter has the strongest magnetic field of all planets",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Jupiter is the largest planet and has a magnetic field 16-54 times more powerful than Earth's, making it the strongest planetary magnetic field. Both P and Q are true, making the conditional TRUE.",
-            funFact: "Jupiter's magnetic field is so powerful it can be detected from billions of miles away."
-          },
-          {
-            question: "Statement P: Jupiter is a gas giant.\nStatement Q: Jupiter has no solid surface to land on.\n\nEvaluate: P ↔ Q",
-            operator: "Biconditional (↔)",
-            p: "Jupiter is a gas giant",
-            q: "Jupiter has no solid surface to land on",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "As a gas giant, Jupiter doesn't have a true surface and is mostly swirling gases and liquids deeper down. Both statements are true and definitionally related, making the biconditional TRUE.",
-            funFact: "The densest parts of Jupiter are at the core, where extreme pressure creates exotic states of matter."
-          },
-          {
-            question: "Statement P: Jupiter is made of solid rock.\nStatement Q: Jupiter has a magnetic field.\nStatement R: Jupiter is the largest planet.\n\nEvaluate: P ∧ Q ∧ R",
-            operator: "Conjunction (∧)",
-            p: "Jupiter is made of solid rock",
-            q: "Jupiter has a magnetic field",
-            pValue: false,
-            qValue: true,
-            correctIsTrue: false,
-            explanation: "Jupiter is a gas giant, not solid rock. Although Q and R are true, since P is false, P ∧ Q ∧ R = FALSE.",
-            funFact: "Jupiter is composed mostly of hydrogen and helium with no solid surface."
+            question: "Statement P: Jupiter is the largest planet.\nStatement Q: Jupiter has a solid surface.\n\nEvaluate: P ∧ Q",
+            pValue: true, qValue: false, correctIsTrue: false,
+            explanation: "Jupiter is the largest (True), but it is a gas giant with no true solid surface (False).",
+            funFact: "Jupiter's mass is more than twice that of all other planets combined."
           }
         ],
         Saturn: [
           {
-            question: "Statement P: Saturn has prominent rings.\nStatement Q: Saturn is less dense than water.\nStatement R: Saturn is NOT a gas giant.\n\nEvaluate: P ∧ Q ∧ R",
-            operator: "Conjunction (∧)",
-            p: "Saturn has prominent rings",
-            q: "Saturn is less dense than water",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: false,
-            explanation: "Saturn has spectacular rings and is less dense than water, but Saturn IS a gas giant (statement R was true, so ¬R is false). P ∧ Q ∧ ¬R = FALSE.",
-            funFact: "Saturn would actually float in water if we could find a bathtub large enough!"
-          },
-          {
-            question: "Statement P: Saturn has a hexagonal jet stream at its north pole.\nStatement Q: This hexagonal pattern exists on all planets.\n\nEvaluate: P ∧ Q",
-            operator: "Conjunction (∧)",
-            p: "Saturn has a hexagonal jet stream at its north pole",
-            q: "This hexagonal pattern exists on ALL planets",
-            pValue: true,
-            qValue: false,
-            correctIsTrue: false,
-            explanation: "Saturn's north pole does have a unique six-sided jet stream, but this pattern does NOT exist on other planets. Since Q is false, P ∧ Q = FALSE.",
-            funFact: "Saturn's hexagonal jet stream is one of the most peculiar and mysterious atmospheric features in the solar system."
-          },
-          {
-            question: "Statement P: Saturn is the only planet with moons.\nStatement Q: Many planets have moons.\n\nEvaluate: P ∧ Q",
-            operator: "Conjunction (∧)",
-            p: "Saturn is the only planet with moons",
-            q: "Many planets have moons",
-            pValue: false,
-            qValue: true,
-            correctIsTrue: false,
-            explanation: "Saturn is not the only planet with moons. Many planets have moons. Since P is false, P ∧ Q = FALSE.",
-            funFact: "All of the gas giants and many terrestrial planets have moons in our solar system."
+            question: "Statement P: Saturn is the only planet with rings.\nStatement Q: Saturn is a gas giant.\n\nEvaluate: P → Q",
+            pValue: false, qValue: true, correctIsTrue: true, // F -> T is True
+            explanation: "Jupiter, Uranus, and Neptune also have rings (P=False). Saturn is a gas giant (Q=True).",
+            funFact: "Saturn is the only planet that is less dense than water."
           }
         ],
         Uranus: [
           {
-            question: "Statement P: Uranus rotates upright like most planets.\nStatement Q: Uranus appears blue-green in color.\n\nEvaluate: P ∨ Q",
-            operator: "Disjunction (∨)",
-            p: "Uranus rotates upright like most planets",
-            q: "Uranus appears blue-green in color",
-            pValue: false,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Uranus does not rotate upright; it rotates on its side at 98° tilt. But Q is true, so P ∨ Q = TRUE.",
-            funFact: "Uranus essentially rolls around the Sun like a ball due to its extreme 98-degree axial tilt."
-          },
-          {
-            question: "Statement P: Uranus is an ice giant.\nStatement Q: Most of Uranus' mass is made of water, methane, and ammonia.\n\nEvaluate: P → Q",
-            operator: "Conditional (→)",
-            p: "Uranus is an ice giant",
-            q: "Most of Uranus' mass is made of water, methane, and ammonia",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Uranus is one of two ice giants. Most (80% or more) of the planet's mass is made up of a hot dense fluid of 'icy' materials – water, methane, and ammonia. Both P and Q are true, making the conditional TRUE.",
-            funFact: "The 'ice' in ice giants doesn't mean frozen solid—it refers to the composition of dense exotic materials."
-          },
-          {
-            question: "Statement P: Uranus has a magnetic field aligned with its rotation axis.\nStatement Q: Uranus has auroras aligned with its poles.\n\nEvaluate: P ↔ Q",
-            operator: "Biconditional (↔)",
-            p: "Uranus has aligned magnetic field",
-            q: "Uranus has pole-aligned auroras",
-            pValue: false,
-            qValue: false,
-            correctIsTrue: true,
-            explanation: "Uranus's magnetic axis is tilted nearly 60 degrees from its rotation axis, so it's not aligned. Its auroras are not in line with the poles. Both statements are false, so ¬P ↔ ¬Q = TRUE.",
-            funFact: "Uranus's extreme magnetic tilt creates unusual aurora patterns that don't align with its poles."
+            question: "Statement P: Uranus is the hottest planet.\nStatement Q: Uranus has no rings.\n\nEvaluate: P ∨ Q",
+            pValue: false, qValue: false, correctIsTrue: false,
+            explanation: "Uranus is an ice giant (very cold, P=False) and it DOES have rings (Q=False).",
+            funFact: "Uranus was the first planet found with the aid of a telescope."
           }
         ],
         Neptune: [
           {
-            question: "Statement P: Neptune is the farthest planet from the Sun.\nStatement Q: Neptune has the strongest winds in the solar system.\nStatement R: Neptune is blue in color.\n\nEvaluate: P ∧ Q ∧ R",
-            operator: "Conjunction (∧)",
-            p: "Neptune is the farthest planet from the Sun",
-            q: "Neptune has the strongest winds in the solar system",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Neptune is the eighth and farthest planet from the Sun. Neptune's winds can exceed 1,200 mph (2,000 km/h), three times stronger than Jupiter's and nine times stronger than Earth's. Neptune appears blue due to methane. All three statements are true.",
-            funFact: "Neptune's winds are powered partly by internal heat, despite receiving very little solar energy."
-          },
-          {
-            question: "Statement P: Neptune is far from the Sun with low energy input.\nStatement Q: Neptune has weak or no winds.\n\nEvaluate: P → Q",
-            operator: "Conditional (→)",
-            p: "Neptune is far from the Sun with low energy input",
-            q: "Neptune has weak or no winds",
-            pValue: true,
-            qValue: false,
-            correctIsTrue: false,
-            explanation: "Despite its great distance and low energy input from the Sun, Neptune is our solar system's windiest world with winds exceeding 1,200 mph. P is TRUE but Q is FALSE, making the conditional FALSE.",
-            funFact: "Neptune's powerful winds are one of the greatest mysteries in planetary science."
-          },
-          {
-            question: "Statement P: Neptune was discovered by mathematical prediction.\nStatement Q: Neptune position was confirmed by telescope.\n\nEvaluate: P ∧ Q",
-            operator: "Conjunction (∧)",
-            p: "Neptune was discovered by mathematical prediction",
-            q: "Neptune position was confirmed by telescope",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Neptune was mathematically predicted and then confirmed through telescope observation. Both statements are true, so P ∧ Q = TRUE.",
-            funFact: "Neptune was mathematically predicted before it was ever directly observed through a telescope in 1846."
+            question: "Statement P: Neptune is visible to the naked eye.\nStatement Q: Neptune has strong winds.\n\nEvaluate: ¬P ∧ Q",
+            pValue: false, qValue: true, correctIsTrue: true,
+            explanation: "Neptune is too far to be seen without a telescope (P=False). Its winds reach 1,200 mph (Q=True).",
+            funFact: "Neptune was the first planet located through mathematical calculations."
           }
         ]
       };
 
-      // Create the planets array with random question selection
+      // --- SETUP ---
       function getRandomQuestion(planetName) {
-        const questions = planetQuestionsBank[planetName] || [];
+        const questions = planetQuestionsBank[planetName] || planetQuestionsBank["Mercury"]; // Fallback
         return questions[Math.floor(Math.random() * questions.length)];
       }
 
@@ -1723,7 +725,9 @@
         { name: "Neptune", ...getRandomQuestion("Neptune") }
       ];
 
+      // --- DOM ELEMENTS ---
       const solarSystemEl = document.getElementById("solarSystem");
+      const sceneWrapper = document.getElementById("sceneWrapper");
       const sunEl = document.getElementById("sun");
       const countdownOverlay = document.getElementById("countdownOverlay");
       const countdownNumberEl = document.getElementById("countdownNumber");
@@ -1750,62 +754,116 @@
       const musicToggle = document.getElementById("musicToggle");
       const bgMusic = document.getElementById("bgMusic");
       const quizMetaEl = document.getElementById("quizMeta");
-
-      // Cache DOM queries
       const planetElements = Array.from(document.querySelectorAll(".planet"));
-      const orbitElements = Array.from(document.querySelectorAll(".orbit.animate"));
 
-      let hasLaunched = false;
       let currentPlanetIndex = 0;
       let score = 0;
       let answersGiven = 0;
       let countdownTimer = null;
-      let orbitTime = 0;
+      let animationFrameId;
 
+      // --- SCALING LOGIC (FIX FOR MOBILE) ---
+      // We use a fixed coordinate system (1000x1000) for logic, and scale the visual container
+      const BASE_SIZE = 1000; 
+      const MAX_ORBIT_DIAMETER = 820; // Neptune's orbit size in pixels
+      const SAFE_PADDING = 40; // Pixels padding
+
+      function handleResize() {
+        if (!sceneWrapper || !solarSystemEl) return;
+        
+        const availableWidth = sceneWrapper.clientWidth;
+        const availableHeight = sceneWrapper.clientHeight;
+        
+        // Determine the limiting dimension
+        const minDimension = Math.min(availableWidth, availableHeight);
+        
+        // Calculate scale needed to fit the largest orbit into the available space
+        // We add some padding so Neptune doesn't touch the edge
+        let scaleFactor = (minDimension - SAFE_PADDING) / MAX_ORBIT_DIAMETER;
+        
+        // Cap the scale at 1.2 so it doesn't get absurdly huge on 4k screens
+        scaleFactor = Math.min(scaleFactor, 1.2);
+        
+        // Apply scale
+        solarSystemEl.style.transform = `scale(${scaleFactor})`;
+        
+        // Counter-scale interactive elements so they remain clickable/readable on small screens
+        // If the scene is tiny (0.4), we want planets to be 2.5x larger relative to the scene
+        const counterScale = Math.max(1, 0.8 / scaleFactor);
+        
+        planetElements.forEach(el => {
+            // We only scale the visual size, not the position
+            // But actually, simple CSS 'transform' on the planet might conflict with the position transform
+            // So we change the width/height to make them visually larger without affecting orbit math
+            // OR we rely on the ::before pseudo element for hit area, which is constant px
+        });
+        
+        // Update Sun touch target
+        if(sunEl) {
+             // Keep sun reasonably sized
+        }
+      }
+
+      // Listen for resize events
+      window.addEventListener('resize', handleResize);
+      // Call once on init
+      setTimeout(handleResize, 100);
+
+      // --- ORBIT LOGIC ---
       const orbitRadii = [80, 110, 145, 180, 260, 310, 360, 410];
       const orbitSpeeds = [4.1, 1.6, 1.0, 0.53, 0.35, 0.18, 0.095, 0.055];
 
-      // Solar system facts for countdown
-      const introFacts = [
-        "Our solar system formed about 4.6 billion years ago from a cloud of gas and dust.",
-        "The four inner planets are rocky worlds; the four outer planets are gas and ice giants.",
-        "The Sun contains more than 99 percent of the mass of the solar system."
-      ];
+      function animateOrbits(timestamp) {
+        const orbitTime = timestamp * 0.0002;
+        
+        // Center of the 1000x1000 container
+        const centerX = 500; 
+        const centerY = 500;
 
-      function shuffle(array) {
-        const arr = array.slice();
-        for (let i = arr.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
+        planetElements.forEach((el, index) => {
+          const radius = orbitRadii[index];
+          const speed = orbitSpeeds[index];
+          const angle = orbitTime * speed + index * 0.9;
+          
+          const x = centerX + radius * Math.cos(angle);
+          const y = centerY + radius * Math.sin(angle);
+
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
+          // Transform is just for centering the element on its coordinate
+          el.style.transform = `translate(-50%, -50%)`;
+        });
+
+        animationFrameId = window.requestAnimationFrame(animateOrbits);
       }
+      
+      // Start animation
+      animationFrameId = window.requestAnimationFrame(animateOrbits);
+
+
+      // --- GAMEPLAY FUNCTIONS ---
 
       function highlightCurrentPlanet(index) {
         planetElements.forEach((el) => el.classList.remove("highlighted"));
         const match = planetElements.find((el) => Number(el.dataset.planetIndex) === index);
-        if (match) {
-          match.classList.add("highlighted");
-        }
-      }
-
-      function clearHighlight() {
-        planetElements.forEach((el) => el.classList.remove("highlighted"));
+        if (match) { match.classList.add("highlighted"); }
       }
 
       function startCountdown() {
-        if (hasLaunched) return;
-        hasLaunched = true;
-
-        solarSystemEl.classList.add("dimmed");
         document.body.classList.add("top-down-view");
-
-        const shuffledFacts = shuffle(introFacts);
+        
+        const facts = [
+            "Inner planets are rock; outer planets are gas/ice.",
+            "The Sun is 99% of the solar system's mass.",
+            "Jupiter spins the fastest of all planets."
+        ];
+        
         countdownFactsEl.innerHTML = "";
-        shuffledFacts.forEach((fact) => {
-          const li = document.createElement("li");
-          li.textContent = fact;
-          countdownFactsEl.appendChild(li);
+        facts.forEach(f => {
+            const li = document.createElement("li");
+            li.textContent = f;
+            li.style.marginBottom = "5px";
+            countdownFactsEl.appendChild(li);
         });
 
         countdownNumberEl.textContent = "5";
@@ -1813,11 +871,13 @@
         countdownOverlay.setAttribute("aria-hidden", "false");
 
         let remaining = 5;
-        countdownTimer = window.setInterval(() => {
+        if(countdownTimer) clearInterval(countdownTimer);
+        
+        countdownTimer = setInterval(() => {
           remaining -= 1;
           countdownNumberEl.textContent = String(remaining);
           if (remaining <= 0) {
-            window.clearInterval(countdownTimer);
+            clearInterval(countdownTimer);
             beginQuiz();
           }
         }, 1000);
@@ -1826,14 +886,8 @@
       function beginQuiz() {
         countdownOverlay.classList.remove("visible");
         countdownOverlay.setAttribute("aria-hidden", "true");
-
-        solarSystemEl.classList.remove("side-view");
-        solarSystemEl.classList.add("top-down");
         solarSystemEl.classList.remove("dimmed");
         
-        // Pause expensive animations during quiz
-        solarSystemEl.style.animationPlayState = "paused";
-
         currentPlanetIndex = 0;
         score = 0;
         answersGiven = 0;
@@ -1851,53 +905,47 @@
 
         quizCard.dataset.planet = planet.name;
         quizPlanetNameEl.textContent = planet.name;
-        questionTextEl.textContent =
-          "Decide whether this statement is true (T) or false (F) in the last column of the truth table.";
-        truthFactCellEl.textContent = planet.question;
+        questionTextEl.textContent = "Evaluate the Truth Table";
+        truthFactCellEl.innerText = planet.question; // Use innerText to preserve newlines
         truthAnswerCellEl.textContent = "?";
+        truthAnswerCellEl.style.color = "var(--accent)";
 
         explanationTextEl.textContent = "";
         planetFactTextEl.textContent = "";
-        quizMetaEl.classList.remove("visible");
         quizMetaEl.classList.add("hidden");
 
         answerStatusEl.textContent = "";
-        answerStatusEl.classList.remove("correct", "incorrect");
+        answerStatusEl.className = "answer-status"; // Reset classes
 
         btnTrue.disabled = false;
         btnFalse.disabled = false;
         btnNext.disabled = true;
 
-        progressTextEl.textContent = "Planet " + (index + 1) + " of " + planets.length;
-
+        progressTextEl.textContent = `Planet ${index + 1} of ${planets.length}`;
         quizWrapper.classList.add("visible");
         quizWrapper.setAttribute("aria-hidden", "false");
       }
 
       function handleAnswer(isTrueSelected) {
         const planet = planets[currentPlanetIndex];
-        if (!planet) return;
-
+        
         truthAnswerCellEl.textContent = isTrueSelected ? "T" : "F";
-
         const correct = planet.correctIsTrue === isTrueSelected;
-        answersGiven += 1;
+        
+        truthAnswerCellEl.style.color = correct ? "var(--success)" : "var(--error)";
+
         if (correct) {
-          score += 1;
-          answerStatusEl.textContent = "Correct. Your truth table entry matches what NASA reports.";
-          answerStatusEl.classList.remove("incorrect");
+          score++;
+          answerStatusEl.textContent = "CORRECT";
           answerStatusEl.classList.add("correct");
         } else {
-          answerStatusEl.textContent = "Not quite. The correct truth table entry for this statement is the opposite.";
-          answerStatusEl.classList.remove("correct");
+          answerStatusEl.textContent = "INCORRECT";
           answerStatusEl.classList.add("incorrect");
         }
 
         explanationTextEl.textContent = planet.explanation;
         planetFactTextEl.textContent = planet.funFact;
-
         quizMetaEl.classList.remove("hidden");
-        quizMetaEl.classList.add("visible");
 
         btnTrue.disabled = true;
         btnFalse.disabled = true;
@@ -1905,100 +953,56 @@
       }
 
       function goToNextPlanet() {
-        const nextIndex = currentPlanetIndex + 1;
-        if (nextIndex >= planets.length) {
+        if (currentPlanetIndex + 1 >= planets.length) {
           finishMission();
-          return;
+        } else {
+          currentPlanetIndex++;
+          showQuestionForPlanet(currentPlanetIndex);
         }
-        currentPlanetIndex = nextIndex;
-        showQuestionForPlanet(currentPlanetIndex);
       }
 
       function finishMission() {
-        clearHighlight();
         quizWrapper.classList.remove("visible");
         quizWrapper.setAttribute("aria-hidden", "true");
+        planetElements.forEach(el => el.classList.remove("highlighted"));
 
-        // Resume animations
-        solarSystemEl.style.animationPlayState = "running";
-
-        const total = planets.length;
-        const accuracy = total > 0 ? Math.round((score / total) * 100) : 0;
-
-        summaryScoreEl.textContent = score + " / " + total;
-        summaryDetailEl.textContent =
-          "You completed a full orbit of logic checks across the solar system.";
-
-        summaryAccuracyEl.textContent = "Accuracy: " + accuracy + "%";
-        let tier;
-        if (accuracy === 100) {
-          tier = "Tier: Master navigator";
-        } else if (accuracy >= 75) {
-          tier = "Tier: Mission specialist";
-        } else if (accuracy >= 50) {
-          tier = "Tier: Cadet in training";
-        } else {
-          tier = "Tier: Keep practicing your truth tables";
-        }
-        summaryTierEl.textContent = tier;
+        const accuracy = Math.round((score / planets.length) * 100);
+        summaryScoreEl.textContent = `${score} / ${planets.length}`;
+        summaryDetailEl.textContent = "Mission Debrief Complete";
+        summaryAccuracyEl.textContent = `Accuracy: ${accuracy}%`;
+        
+        if (accuracy === 100) summaryTierEl.textContent = "Rank: Admiral";
+        else if (accuracy >= 75) summaryTierEl.textContent = "Rank: Commander";
+        else if (accuracy >= 50) summaryTierEl.textContent = "Rank: Pilot";
+        else summaryTierEl.textContent = "Rank: Cadet";
 
         summaryWrapper.classList.add("visible");
         summaryWrapper.setAttribute("aria-hidden", "false");
       }
 
       function restartMission() {
-        score = 0;
-        answersGiven = 0;
-        currentPlanetIndex = 0;
         summaryWrapper.classList.remove("visible");
         summaryWrapper.setAttribute("aria-hidden", "true");
-        solarSystemEl.classList.remove("top-down");
-        solarSystemEl.classList.add("side-view");
+        document.body.classList.remove("top-down-view");
         
-        // Resume animations when returning to side view
-        solarSystemEl.style.animationPlayState = "running";
-        
-        clearHighlight();
-        hasLaunched = false;
+        // Force re-layout
+        handleResize();
       }
 
       function toggleMusic() {
         if (!bgMusic) return;
-        try {
-          if (bgMusic.paused) {
-            bgMusic.play().catch(function () { /* ignore autoplay errors */ });
-            musicToggle.setAttribute("aria-pressed", "true");
-          } else {
-            bgMusic.pause();
-            musicToggle.setAttribute("aria-pressed", "false");
-          }
-        } catch (e) {
-          // fail silently
+        if (bgMusic.paused) {
+          bgMusic.play().catch(e => console.log("Audio play failed", e));
+          musicToggle.setAttribute("aria-pressed", "true");
+          musicToggle.style.borderColor = "var(--accent)";
+        } else {
+          bgMusic.pause();
+          musicToggle.setAttribute("aria-pressed", "false");
+          musicToggle.style.borderColor = "rgba(255,215,0,0.3)";
         }
       }
 
-      function animateOrbits(timestamp) {
-        orbitTime = timestamp * 0.0002;
-        const width = solarSystemEl.clientWidth;
-        const height = solarSystemEl.clientHeight;
-        const centerX = width / 2;
-        const centerY = height / 2;
-
-        planetElements.forEach((el, index) => {
-          const radius = orbitRadii[index] || 100;
-          const speed = orbitSpeeds[index] || 1;
-          const angle = orbitTime * speed + index * 0.9;
-          const x = centerX + radius * Math.cos(angle);
-          const y = centerY + radius * Math.sin(angle);
-
-          el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
-        });
-
-        window.requestAnimationFrame(animateOrbits);
-      }
-
-      window.requestAnimationFrame(animateOrbits);
-
+      // --- EVENTS ---
       sunEl.addEventListener("click", startCountdown);
       btnTrue.addEventListener("click", () => handleAnswer(true));
       btnFalse.addEventListener("click", () => handleAnswer(false));
@@ -2006,10 +1010,10 @@
       btnRestart.addEventListener("click", restartMission);
       musicToggle.addEventListener("click", toggleMusic);
       
-      // ADDED EVENT LISTENER FOR NEW BUTTON
       document.getElementById('btnVisitSite').addEventListener('click', function() {
         window.open('https://sirp0o0kiebear.wixsite.com/solar-system', '_blank');
       });
+
     })();
   </script>
 </body>
