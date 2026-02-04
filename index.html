@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Solar System Logic Mission</title>
 
   <!-- Google Font -->
@@ -13,17 +13,19 @@
   <style>
     :root {
       --bg-space: #020310;
-      --accent: #ffcc4d;
-      --accent-soft: rgba(255, 204, 77, 0.25);
-      --card-bg: rgba(7, 11, 30, 0.9);
+      --accent: #ffd700;
+      --accent-soft: rgba(255, 215, 0, 0.2);
+      --accent-glow: rgba(255, 215, 0, 0.4);
+      --card-bg: rgba(7, 11, 30, 0.92);
       --text-main: #f5f7ff;
       --text-muted: #a4b0d0;
-      --error: #ff4d6a;
-      --success: #5ad08b;
+      --error: #ff5577;
+      --success: #4ade80;
       --orbit-color: rgba(255, 255, 255, 0.1);
       --transition-fast: 0.35s ease-out;
       --transition-med: 0.6s ease-in-out;
       --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 30px rgba(255, 215, 0, 0.3);
       --radius-card: 18px;
     }
 
@@ -38,7 +40,8 @@
       background: url("starfield.jpg") center/cover fixed no-repeat;
       color: var(--text-main);
       min-height: 100vh;
-      overflow: hidden;
+      min-height: 100dvh;
+      overflow: auto;
       display: flex;
       align-items: stretch;
       justify-content: center;
@@ -57,19 +60,21 @@
       position: relative;
       overflow: hidden;
       padding: 16px;
+      min-height: 100vh;
+      min-height: 100dvh;
     }
 
     .frame {
       border-radius: 26px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      box-shadow: 0 22px 55px rgba(0, 0, 0, 0.7);
+      border: 1.5px solid rgba(255, 215, 0, 0.2);
+      box-shadow: 0 22px 55px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 215, 0, 0.15);
       backdrop-filter: blur(16px);
       background:
         url("asteroidbelt1.jpg") center/cover no-repeat,
-        radial-gradient(circle at top left, rgba(108, 122, 255, 0.24), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(255, 207, 115, 0.16), transparent 55%),
-        rgba(0, 0, 20, 0.85);
-      height: calc(100vh - 32px);
+        radial-gradient(circle at top left, rgba(108, 122, 255, 0.15), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(255, 215, 0, 0.12), transparent 55%),
+        rgba(0, 0, 10, 0.96);
+      height: auto;
       min-height: 540px;
       max-height: 900px;
       display: grid;
@@ -78,12 +83,21 @@
       overflow: hidden;
     }
 
+    @media (max-height: 768px) {
+      .frame {
+        min-height: auto;
+        max-height: none;
+      }
+    }
+
     header.app-header {
       padding: 16px 22px 8px;
       display: flex;
       align-items: center;
       justify-content: flex-end;
       z-index: 40;
+      background: linear-gradient(135deg, rgba(30, 45, 100, 0.15), rgba(15, 25, 60, 0.1));
+      border-bottom: 1px solid rgba(255, 215, 0, 0.1);
     }
 
     .brand {
@@ -98,61 +112,39 @@
       color: var(--text-muted);
     }
 
-    .pill {
-      border-radius: 999px;
-      padding: 6px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      backdrop-filter: blur(12px);
-      background: linear-gradient(135deg, rgba(15, 24, 74, 0.9), rgba(42, 26, 82, 0.6));
-    }
-
-    .pill-quiet {
-      background: rgba(5, 10, 32, 0.7);
-    }
-
-    .indicator-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--success);
-      box-shadow: 0 0 12px rgba(90, 208, 139, 0.8);
-    }
-
     .btn-ghost {
       border-radius: 999px;
-      padding: 6px 12px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.25), transparent 60%),
-                  rgba(5, 10, 32, 0.8);
+      padding: 8px 14px;
+      border: 1.5px solid rgba(255, 215, 0, 0.3);
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.15), transparent 60%),
+                  rgba(5, 10, 32, 0.85);
       color: var(--text-main);
       cursor: pointer;
-      font-size: 0.75rem;
-      font-weight: 500;
+      font-size: 0.78rem;
+      font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.18s ease-out, transform 0.18s ease-out, box-shadow 0.18s;
+      transition: all 0.2s ease-out;
     }
 
     .btn-ghost:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.4), transparent 60%),
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.2);
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.3), transparent 60%),
                   rgba(10, 18, 54, 0.95);
     }
 
     .btn-ghost:active {
       transform: translateY(0);
-      box-shadow: none;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
     }
 
     .btn-ghost[aria-pressed="true"] {
       border-color: var(--accent);
-      background: radial-gradient(circle at top, rgba(255, 219, 139, 0.6), transparent 60%),
-                  rgba(40, 24, 4, 0.95);
+      background: radial-gradient(circle at top, rgba(255, 215, 0, 0.5), transparent 60%),
+                  rgba(40, 30, 0, 0.98);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.25);
     }
 
     main.stage {
@@ -183,16 +175,6 @@
       transform: scale(0.82);
     }
 
-    .solar-system.side-view {
-      /* Side view with orbital animations */
-      opacity: 1;
-    }
-
-    .solar-system.top-down {
-      /* Top-down quiz view with reduced animations */
-      opacity: 1;
-    }
-
     .solar-system.dimmed {
       opacity: 0.18;
       filter: blur(3px);
@@ -202,14 +184,14 @@
       position: absolute;
       inset: -40px;
       background-image:
-        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.7) 1px, transparent 1px),
-        radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.5) 1px, transparent 1px),
-        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.6) 1px, transparent 1px),
-        radial-gradient(circle at 20% 75%, rgba(200, 220, 255, 0.5) 1px, transparent 1px),
-        radial-gradient(circle at 65% 15%, rgba(255, 220, 200, 0.4) 1px, transparent 1px);
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.9) 1px, transparent 1px),
+        radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.85) 1px, transparent 1px),
+        radial-gradient(circle at 20% 75%, rgba(200, 220, 255, 0.8) 1px, transparent 1px),
+        radial-gradient(circle at 65% 15%, rgba(255, 220, 200, 0.7) 1px, transparent 1px);
       background-size: 250% 250%, 220% 220%, 280% 280%, 240% 240%, 260% 260%;
       background-position: 0% 0%, 10% 20%, 5% 15%, 15% 25%, 20% 10%;
-      opacity: 0.75;
+      opacity: 0.9;
       mix-blend-mode: screen;
       pointer-events: none;
       animation: twinkle-stars 10s ease-in-out infinite alternate;
@@ -218,20 +200,20 @@
     }
 
     @keyframes twinkle-stars {
-      0% { opacity: 0.6; }
-      100% { opacity: 0.8; }
+      0% { opacity: 0.75; }
+      100% { opacity: 0.95; }
     }
 
     .deep-stars {
       position: absolute;
       inset: -60px;
       background-image:
-        radial-gradient(circle at 25% 10%, rgba(255, 255, 255, 0.8) 0, transparent 1px),
-        radial-gradient(circle at 70% 85%, rgba(255, 255, 255, 0.7) 0, transparent 1px),
-        radial-gradient(circle at 30% 60%, rgba(150, 200, 255, 0.6) 0, transparent 1px),
-        radial-gradient(circle at 88% 40%, rgba(255, 255, 255, 0.5) 0, transparent 1px),
-        radial-gradient(circle at 12% 35%, rgba(200, 255, 255, 0.5) 0, transparent 1px);
-      opacity: 0.6;
+        radial-gradient(circle at 25% 10%, rgba(255, 255, 255, 0.95) 0, transparent 1px),
+        radial-gradient(circle at 70% 85%, rgba(255, 255, 255, 0.9) 0, transparent 1px),
+        radial-gradient(circle at 30% 60%, rgba(150, 200, 255, 0.85) 0, transparent 1px),
+        radial-gradient(circle at 88% 40%, rgba(255, 255, 255, 0.8) 0, transparent 1px),
+        radial-gradient(circle at 12% 35%, rgba(200, 255, 255, 0.8) 0, transparent 1px);
+      opacity: 0.8;
       mix-blend-mode: screen;
       filter: blur(0.5px);
       pointer-events: none;
@@ -261,122 +243,11 @@
     }
 
     .far-galaxy {
-      position: absolute;
-      width: 260px;
-      height: 260px;
-      background: url("nebula.jpg") center/cover no-repeat;
-      opacity: 0.1;
-      mix-blend-mode: screen;
-      pointer-events: none;
-      will-change: transform;
-      contain: layout style paint;
-    }
-
-    .far-galaxy.one {
-      top: 6%;
-      right: -4%;
-      transform: rotate(18deg) scale(0.9);
-    }
-
-    .far-galaxy.two {
-      bottom: -8%;
-      left: -6%;
-      transform: rotate(-14deg) scale(1.1);
+      display: none;
     }
 
     .twinkle-layer {
-      position: absolute;
-      inset: 0;
-      background-image:
-        radial-gradient(circle at 15% 30%, rgba(255, 255, 255, 0.4) 0, transparent 40%),
-        radial-gradient(circle at 70% 55%, rgba(255, 255, 255, 0.3) 0, transparent 40%);
-      opacity: 0.0;
-      mix-blend-mode: screen;
-      animation: twinkle-subtle 8s ease-in-out infinite alternate;
-      pointer-events: none;
-      will-change: opacity;
-      contain: layout style paint;
-    }
-
-    @keyframes twinkle-subtle {
-      0% { opacity: 0.0; }
-      100% { opacity: 0.2; }
-    }
-
-    @keyframes twinkle {
-      0%   { opacity: 0.0; transform: scale(1); }
-      40%  { opacity: 0.45; transform: scale(1.01); }
-      70%  { opacity: 0.2; transform: scale(1); }
-      100% { opacity: 0.55; transform: scale(1.015); }
-    }
-
-    .shooting-star {
-      position: absolute;
-      width: 100px;
-      height: 1.5px;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), transparent);
-      opacity: 0;
-      filter: blur(0.5px);
-      pointer-events: none;
-      mix-blend-mode: screen;
-      box-shadow: 0 0 8px rgba(200, 220, 255, 0.7);
-      will-change: transform, opacity;
-      contain: layout style paint;
-    }
-
-    .shooting-star::after {
-      content: "";
-      position: absolute;
-      right: 0;
-      top: -2px;
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 0 6px rgba(200, 220, 255, 0.7);
-    }
-
-    .shooting-star.one {
-      top: 15%;
-      left: -15%;
-      animation: shooting 6s linear infinite;
-      animation-delay: 0s;
-    }
-
-    .shooting-star.two {
-      top: 65%;
-      left: 110%;
-      transform: rotate(180deg);
-      animation: shooting 8s linear infinite;
-      animation-delay: 2s;
-    }
-
-    .shooting-star.three {
-      top: 35%;
-      left: -20%;
-      animation: shooting 7s linear infinite;
-      animation-delay: 4s;
-    }
-
-    @keyframes shooting {
-      0% {
-        opacity: 0;
-        transform: translate3d(0, 0, 0);
-      }
-      5% {
-        opacity: 1;
-      }
-      25% {
-        opacity: 1;
-        transform: translate3d(160%, 40%, 0);
-      }
-      45% {
-        opacity: 0;
-      }
-      100% {
-        opacity: 0;
-        transform: translate3d(200%, 80%, 0);
-      }
+      display: none;
     }
 
     .orbit {
@@ -414,16 +285,18 @@
       background: radial-gradient(circle at 20% 15%, #ffffff, #ffd36a 40%, #ff9b21 70%, rgba(0, 0, 0, 0) 72%),
                   url("Textures/sun.jpg") center/cover no-repeat;
       box-shadow:
-        0 0 30px rgba(255, 150, 40, 0.8),
-        0 0 60px rgba(255, 100, 20, 0.4);
+        0 0 50px rgba(255, 150, 40, 1),
+        0 0 100px rgba(255, 100, 20, 0.8),
+        0 0 150px rgba(255, 150, 40, 0.5);
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       cursor: pointer;
-      transition: transform 0.25s ease-out, box-shadow 0.25s ease-out, filter 0.25s ease-out;
+      transition: all 0.25s ease-out;
       z-index: 4;
       will-change: transform, box-shadow;
       contain: layout style paint;
+      filter: brightness(1.2);
     }
 
     .star::after {
@@ -464,9 +337,11 @@
         0 6px 18px rgba(0, 0, 0, 0.8),
         0 0 20px rgba(100, 180, 255, 0.2);
       transform: translate(-50%, -50%);
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+      transition: all var(--transition-fast);
       will-change: transform;
       contain: layout style paint;
+      backface-visibility: hidden;
+      perspective: 1000px;
     }
 
     .planet::after {
@@ -524,13 +399,13 @@
 
     /* Orbits (used more in top-down) */
     .orbit.mercury { width: 160px; height: 160px; }
-    .orbit.venus   { width: 210px; height: 210px; }
-    .orbit.earth   { width: 260px; height: 260px; }
-    .orbit.mars    { width: 320px; height: 320px; }
-    .orbit.jupiter { width: 480px; height: 480px; }
-    .orbit.saturn  { width: 560px; height: 560px; }
-    .orbit.uranus  { width: 650px; height: 650px; }
-    .orbit.neptune { width: 740px; height: 740px; }
+    .orbit.venus   { width: 220px; height: 220px; }
+    .orbit.earth   { width: 290px; height: 290px; }
+    .orbit.mars    { width: 360px; height: 360px; }
+    .orbit.jupiter { width: 520px; height: 520px; }
+    .orbit.saturn  { width: 620px; height: 620px; }
+    .orbit.uranus  { width: 720px; height: 720px; }
+    .orbit.neptune { width: 820px; height: 820px; }
 
     .asteroid-belt {
       position: absolute;
@@ -543,8 +418,8 @@
       background-image: url("asteroidbelt1.jpg");
       background-size: cover;
       background-position: center;
-      opacity: 0.75;
-      mix-blend-mode: screen;
+      opacity: 0.35;
+      mix-blend-mode: multiply;
       pointer-events: none;
       filter: blur(0.3px);
     }
@@ -573,11 +448,11 @@
       width: 90%;
       padding: 26px 22px 22px;
       border-radius: var(--radius-card);
-      background: radial-gradient(circle at top left, rgba(255, 215, 143, 0.16), transparent 55%),
+      background: radial-gradient(circle at top left, rgba(255, 215, 0, 0.18), transparent 55%),
                   radial-gradient(circle at bottom right, rgba(120, 179, 255, 0.22), transparent 55%),
-                  rgba(4, 11, 30, 0.95);
-      box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(255, 255, 255, 0.16);
+                  rgba(4, 11, 30, 0.96);
+      box-shadow: var(--shadow-soft), 0 0 35px rgba(255, 215, 0, 0.12);
+      border: 1.5px solid rgba(255, 215, 0, 0.2);
       text-align: center;
     }
 
@@ -647,8 +522,8 @@
         url("dwarfplanets1.jpg") center/cover no-repeat,
         var(--card-bg);
       border-radius: var(--radius-card);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: var(--shadow-soft);
+      border: 1.5px solid rgba(255, 215, 0, 0.2);
+      box-shadow: var(--shadow-soft), 0 0 35px rgba(255, 215, 0, 0.12);
       backdrop-filter: blur(18px);
       display: grid;
       grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
@@ -666,7 +541,7 @@
       opacity: 0.18;
       mix-blend-mode: screen;
       pointer-events: none;
-      transition: opacity var(--transition-med), transform var(--transition-med);
+      transition: all var(--transition-med);
       transform: scale(1.12);
     }
 
@@ -678,12 +553,6 @@
     .quiz-card[data-planet="Saturn"]::before  { background-image: url("Textures/saturn.jpg"); }
     .quiz-card[data-planet="Uranus"]::before  { background-image: url("Textures/uranus.jpg"); }
     .quiz-card[data-planet="Neptune"]::before { background-image: url("Textures/neptune.jpg"); }
-
-    .quiz-card-inner {
-      position: relative;
-      z-index: 1;
-      display: contents;
-    }
 
     .quiz-main {
       padding-right: 8px;
@@ -704,8 +573,7 @@
     /* Performance: disable expensive animations in top-down view */
     .solar-system.top-down .starfield,
     .solar-system.top-down .deep-stars,
-    .solar-system.top-down .twinkle-layer,
-    .solar-system.top-down .shooting-star {
+    .solar-system.top-down .twinkle-layer {
       animation: none !important;
       opacity: 0;
       pointer-events: none;
@@ -716,20 +584,6 @@
       border-color: rgba(100, 180, 255, 0.2);
       box-shadow: none;
     }
-
-    .difficulty-pill {
-      padding: 4px 11px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(0, 0, 0, 0.4);
-    }
-
-    .difficulty-easy { color: var(--success); border-color: rgba(90, 208, 139, 0.7); }
-    .difficulty-medium { color: #ffd05a; border-color: rgba(255, 208, 90, 0.8); }
-    .difficulty-hard { color: var(--error); border-color: rgba(255, 77, 106, 0.8); }
 
     .quiz-planet-label {
       font-size: 0.9rem;
@@ -748,24 +602,29 @@
       border-collapse: collapse;
       width: 100%;
       font-size: 0.82rem;
+      background: linear-gradient(135deg, rgba(15, 25, 60, 0.8), rgba(10, 18, 50, 0.9));
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.08);
     }
 
     .truth-table thead {
-      background: rgba(10, 19, 45, 0.9);
+      background: linear-gradient(135deg, rgba(20, 35, 80, 0.95), rgba(15, 28, 70, 0.95));
+      border-bottom: 1.5px solid rgba(255, 215, 0, 0.15);
     }
 
     .truth-table th,
     .truth-table td {
-      padding: 6px 8px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 215, 0, 0.08);
     }
 
     .truth-table tbody tr:nth-child(odd) {
-      background: rgba(7, 12, 33, 0.95);
+      background: rgba(10, 18, 50, 0.85);
     }
 
     .truth-table tbody tr:nth-child(even) {
-      background: rgba(5, 9, 26, 0.95);
+      background: rgba(8, 15, 42, 0.85);
     }
 
     .answer-buttons {
@@ -778,58 +637,68 @@
 
     .btn-answer {
       flex: 0 0 auto;
-      min-width: 82px;
-      padding: 8px 12px;
+      min-width: 90px;
+      padding: 10px 16px;
       border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      background: rgba(9, 18, 52, 0.96);
+      border: 1.5px solid rgba(255, 215, 0, 0.25);
+      background: linear-gradient(135deg, rgba(30, 45, 100, 0.8), rgba(15, 25, 60, 0.9));
       color: var(--text-main);
       cursor: pointer;
-      font-size: 0.86rem;
-      font-weight: 500;
-      transition: background 0.18s ease-out, transform 0.18s ease-out, box-shadow 0.18s ease-out, border-color 0.18s;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease-out;
     }
 
     .btn-answer:hover {
-      background: rgba(25, 39, 92, 0.98);
-      transform: translateY(-1px);
-      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(135deg, rgba(50, 70, 140, 0.95), rgba(25, 40, 90, 1));
+      transform: translateY(-2px);
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.15);
+      border-color: rgba(255, 215, 0, 0.4);
     }
 
     .btn-answer:active {
       transform: translateY(0);
-      box-shadow: none;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
     }
 
     .btn-answer[disabled] {
-      opacity: 0.55;
+      opacity: 0.5;
       cursor: default;
       box-shadow: none;
       transform: none;
     }
 
     .answer-status {
-      margin-top: 6px;
+      margin-top: 8px;
+      padding: 6px 8px;
+      border-radius: 8px;
       font-size: 0.86rem;
       font-weight: 600;
     }
 
     .answer-status.correct {
-      color: var(--success);
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.15);
+      border-left: 3px solid #4ade80;
+      padding-left: 10px;
     }
 
     .answer-status.incorrect {
-      color: var(--error);
+      color: #ff5577;
+      background: rgba(255, 85, 119, 0.15);
+      border-left: 3px solid #ff5577;
+      padding-left: 10px;
     }
 
     .quiz-meta {
       border-radius: 14px;
-      padding: 10px 12px;
-      background: rgba(3, 9, 28, 0.96);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 12px 14px;
+      background: linear-gradient(135deg, rgba(10, 20, 50, 0.8), rgba(5, 12, 35, 0.9));
+      border: 1.5px solid rgba(255, 215, 0, 0.15);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.08);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       font-size: 0.78rem;
       color: var(--text-muted);
     }
@@ -838,7 +707,7 @@
       opacity: 0;
       pointer-events: none;
       transform: translateY(8px);
-      transition: opacity var(--transition-med), transform var(--transition-med);
+      transition: all var(--transition-med);
     }
 
     .quiz-meta.visible {
@@ -875,35 +744,35 @@
     }
 
     .btn-next {
-      padding: 8px 16px;
+      padding: 10px 20px;
       border-radius: 999px;
       border: none;
       cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      background: linear-gradient(135deg, #ffd36a, #ff9f3c);
-      color: #2b1600;
-      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.7);
-      transition: transform 0.16s ease-out, box-shadow 0.16s ease-out, filter 0.16s;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      color: #1a1000;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.3);
+      transition: all 0.2s ease-out;
     }
 
     .btn-next:hover:not([disabled]) {
-      transform: translateY(-1px);
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85);
-      filter: brightness(1.02);
+      transform: translateY(-2px);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9), 0 0 40px rgba(255, 215, 0, 0.5);
+      filter: brightness(1.08);
     }
 
     .btn-next:active:not([disabled]) {
       transform: translateY(0);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.65);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.25);
     }
 
     .btn-next[disabled] {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: default;
-      box-shadow: none;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
     }
 
     /* Summary */
@@ -930,11 +799,11 @@
       padding: 24px 22px 18px;
       border-radius: var(--radius-card);
       background:
-        radial-gradient(circle at top left, rgba(255, 215, 143, 0.18), transparent 55%),
+        radial-gradient(circle at top left, rgba(255, 215, 0, 0.18), transparent 55%),
         radial-gradient(circle at bottom right, rgba(120, 179, 255, 0.22), transparent 55%),
-        rgba(3, 9, 26, 0.96);
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      box-shadow: var(--shadow-soft);
+        rgba(3, 9, 26, 0.97);
+      border: 1.5px solid rgba(255, 215, 0, 0.2);
+      box-shadow: var(--shadow-soft), 0 0 35px rgba(255, 215, 0, 0.12);
       text-align: center;
     }
 
@@ -989,7 +858,7 @@
       cursor: pointer;
       font-size: 0.86rem;
       font-weight: 500;
-      transition: background 0.16s ease-out, transform 0.16s ease-out, box-shadow 0.16s ease-out;
+      transition: all 0.16s ease-out;
     }
 
     .btn-outline:hover {
@@ -1098,11 +967,6 @@
         border-radius: 8px;
       }
 
-      .difficulty-pill {
-        font-size: 0.75rem;
-        padding: 4px 8px;
-      }
-
       .quiz-footer {
         gap: 8px;
         padding: 0;
@@ -1191,11 +1055,6 @@
 
       .quiz-planet-label {
         font-size: 0.85rem;
-      }
-
-      .difficulty-pill {
-        font-size: 0.7rem;
-        padding: 3px 6px;
       }
 
       .quiz-question-heading {
@@ -1403,22 +1262,34 @@
         padding: 10px;
       }
     }
-  </style>
+
+    /* Additional mobile touch improvements */
+    @media (hover: none) and (pointer: coarse) {
+      .btn-answer,
+      .btn-outline,
+      .btn-ghost,
+      .star {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 12px;
+      }
+
+      .btn-answer:active,
+      .btn-outline:active,
+      .btn-ghost:active {
+        opacity: 0.8;
+        background: var(--accent);
+      }
+    }
   </style>
 </head>
 <body>
   <div class="app-shell">
     <div class="frame">
       <header class="app-header">
-        <div class="hud-right">
-          <div class="pill pill-quiet">
-            <span class="indicator-dot"></span>
-            <span id="hud-state-label">Awaiting launch</span>
-          </div>
-          <button id="musicToggle" class="btn-ghost" type="button" aria-pressed="false">
-            <span>Music</span>
-          </button>
-        </div>
+        <button id="musicToggle" class="btn-ghost" type="button" aria-pressed="false">
+          <span>Music</span>
+        </button>
       </header>
 
       <main class="stage">
@@ -1427,13 +1298,7 @@
             <div class="galaxy-clouds"></div>
             <div class="deep-stars"></div>
             <div class="starfield"></div>
-            <div class="far-galaxy one"></div>
-            <div class="far-galaxy two"></div>
-            <div class="twinkle-layer"></div>
             <div class="asteroid-belt"></div>
-            <div class="shooting-star one"></div>
-            <div class="shooting-star two"></div>
-            <div class="shooting-star three"></div>
 
             <!-- Orbits -->
             <div class="orbit mercury animate"></div>
@@ -1477,7 +1342,6 @@
               <section class="quiz-main">
                 <div class="quiz-badge-row">
                   <span class="quiz-planet-label">Planet <span id="quizPlanetName"></span></span>
-                  <span id="difficultyPill" class="difficulty-pill difficulty-easy">Difficulty: Easy</span>
                 </div>
                 <div class="quiz-question-heading" id="questionText"></div>
 
@@ -1534,6 +1398,8 @@
             </div>
             <div class="summary-actions">
               <button id="btnRestart" class="btn-outline" type="button">Run mission again</button>
+              <!-- ADDED BUTTON HERE -->
+              <button id="btnVisitSite" class="btn-outline" type="button">Visit Solar System Site</button>
             </div>
           </section>
         </div>
@@ -1560,396 +1426,282 @@
       const planetQuestionsBank = {
         Mercury: [
           {
-            difficulty: "easy",
-            question: "Mercury is the closest planet to the Sun AND Mercury is the smallest planet.",
-            operator: "AND (∧)",
-            p: "Mercury is closest to the Sun",
-            q: "Mercury is the smallest planet",
+            question: "Statement P: Mercury has a thick atmosphere.\nStatement Q: Mercury has extreme temperature variations.\n\nEvaluate: ¬P ∧ Q",
+            operator: "Negation & Conjunction (¬P ∧ Q)",
+            p: "Mercury does NOT have a thick atmosphere",
+            q: "Mercury has extreme temperature variations",
             pValue: true,
             qValue: true,
             correctIsTrue: true,
-            explanation: "Conjunction (AND): Both P and Q are true, so P ∧ Q = TRUE. Mercury is both the closest to the Sun and the smallest of the eight planets.",
-            funFact: "Even though Mercury is closest to the Sun, it is not the hottest planet because it lacks a thick atmosphere to trap heat."
+            explanation: "Mercury possesses a thin exosphere made up of atoms blasted off the surface. Day temperatures reach 800°F (430°C) while nighttime temperatures drop to -290°F (-180°C). Both statements are true.",
+            funFact: "Mercury has the most extreme temperature swings in the solar system due to its thin atmosphere."
           },
           {
-            difficulty: "medium",
-            question: "Mercury has flowing water OR Mercury completes orbit in 88 days.",
-            operator: "OR (∨)",
-            p: "Mercury has flowing water",
-            q: "Mercury completes its orbit in 88 days",
-            pValue: false,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Disjunction (OR): P is false, but Q is true. Since at least one is true, P ∨ Q = TRUE. Mercury orbits every 88 Earth days.",
-            funFact: "Mercury has no water, but it is the fastest planet, orbiting the Sun every 88 Earth days."
-          },
-          {
-            difficulty: "hard",
-            question: "IF Mercury has an atmosphere THEN Mercury is the hottest planet.",
-            operator: "IMPLIES (→)",
-            p: "Mercury has a thick atmosphere",
+            question: "Statement P: Mercury is the closest planet to the Sun.\nStatement Q: Mercury is the hottest planet in the solar system.\n\nEvaluate: P ∧ Q",
+            operator: "Conjunction (∧)",
+            p: "Mercury is the closest planet to the Sun",
             q: "Mercury is the hottest planet",
-            pValue: false,
-            qValue: false,
-            correctIsTrue: true,
-            explanation: "Conditional (IF-THEN): When P is false, P → Q is TRUE regardless of Q. Mercury lacks atmosphere, so the condition is not met.",
-            funFact: "Mercury's lack of atmosphere means it has extreme temperature swings, not heat retention like Venus."
-          },
-          {
-            difficulty: "hard",
-            question: "Mercury is closest to the Sun IF AND ONLY IF it has the most extreme temperatures.",
-            operator: "BICONDITIONAL (↔)",
-            p: "Mercury is closest to the Sun",
-            q: "Mercury has the most extreme temperatures",
             pValue: true,
             qValue: false,
             correctIsTrue: false,
-            explanation: "Biconditional (IFF): P ↔ Q is true only if both have the same truth value. P is true but Q is false (Venus is hotter), so P ↔ Q = FALSE.",
-            funFact: "Mercury's extreme temperature swings range from 840°F to -280°F, but Venus has a higher surface temperature overall."
+            explanation: "Mercury is the closest planet to the Sun, but Venus is the hottest due to its thick atmosphere. Since Q is false, P ∧ Q = FALSE.",
+            funFact: "Venus is the hottest planet, not Mercury, despite being farther from the Sun."
+          },
+          {
+            question: "Statement P: Mercury has a metallic core.\nStatement Q: Mercury has many impact craters.\nStatement R: Mercury has a magnetic field.\n\nEvaluate: P ∧ Q ∧ R",
+            operator: "Conjunction (∧)",
+            p: "Mercury has a metallic core",
+            q: "Mercury has many impact craters",
+            pValue: true,
+            qValue: true,
+            correctIsTrue: true,
+            explanation: "Mercury has a large metallic core (85% of planet's radius), its surface is scarred by many impact craters, and it has a magnetic field with 1% Earth's strength. All three statements are true.",
+            funFact: "Mercury's huge metallic core makes it one of the densest planets relative to its size."
           }
         ],
         Venus: [
           {
-            difficulty: "medium",
-            question: "Venus has a thick atmosphere AND Venus is hotter than Mercury.",
-            operator: "AND (∧)",
-            p: "Venus has a thick CO₂ atmosphere",
-            q: "Venus is hotter than Mercury",
+            question: "Statement P: Venus has the hottest surface temperature in the solar system (excluding Sun).\nStatement Q: Venus has a thick atmosphere with carbon dioxide.\n\nEvaluate: P ↔ Q",
+            operator: "Biconditional (↔)",
+            p: "Venus has the hottest surface temperature (excluding Sun)",
+            q: "Venus has a thick CO₂ atmosphere",
             pValue: true,
             qValue: true,
             correctIsTrue: true,
-            explanation: "Conjunction (AND): Both P and Q are true. Venus has an extremely dense atmosphere creating a greenhouse effect, making it hotter than Mercury.",
-            funFact: "Venus's surface reaches 900°F (475°C), hot enough to melt lead, while Mercury's extreme but lower average is cooler."
+            explanation: "Venus has the hottest surface in the solar system apart from the Sun, with an atmosphere mostly of carbon dioxide creating extreme greenhouse effect. Both statements are true.",
+            funFact: "Venus's atmosphere is 90 times denser than Earth's and creates a surface temperature hot enough to melt lead."
           },
           {
-            difficulty: "hard",
-            question: "NOT (Venus rotates from west to east like Earth).",
-            operator: "NOT (¬)",
-            p: "Venus rotates from west to east",
+            question: "Statement P: Venus rotates the same direction as Earth.\nStatement Q: Venus day is shorter than its year.\n\nEvaluate: P ∨ Q",
+            operator: "Disjunction (∨)",
+            p: "Venus rotates the same direction as Earth",
+            q: "Venus day is shorter than its year",
             pValue: false,
-            correctIsTrue: true,
-            explanation: "Negation (NOT): P is false (Venus rotates backwards). Therefore, ¬P = TRUE. Venus has a retrograde rotation.",
-            funFact: "Venus rotates backwards and so slowly that a day on Venus is longer than its year!"
-          },
-          {
-            difficulty: "hard",
-            question: "IF Venus is Earth's closest neighbor THEN Venus has conditions supporting life.",
-            operator: "IMPLIES (→)",
-            p: "Venus is Earth's closest planetary neighbor",
-            q: "Venus has conditions supporting human life",
-            pValue: true,
             qValue: false,
             correctIsTrue: false,
-            explanation: "Conditional (IF-THEN): P is true but Q is false. When the first is true and second is false, P → Q = FALSE. Venus is hostile to life.",
-            funFact: "Venus is sometimes called Earth's 'sister planet' due to similar size, but its surface conditions are extremely hostile."
+            explanation: "Venus rotates backwards and has a longer day than its year. Both statements are false, so P ∨ Q = FALSE.",
+            funFact: "Venus has a retrograde rotation, meaning the Sun rises in the west and sets in the east."
           },
           {
-            difficulty: "hard",
-            question: "Venus has an atmosphere IF AND ONLY IF it has sulfuric acid clouds.",
-            operator: "BICONDITIONAL (↔)",
-            p: "Venus has a dense atmosphere",
-            q: "Venus has sulfuric acid clouds",
-            pValue: true,
+            question: "Statement P: Venus has its own internally generated magnetic field.\nStatement Q: Venus has thick carbon dioxide clouds.\n\nEvaluate: P ∧ Q",
+            operator: "Conjunction (∧)",
+            p: "Venus has its own internally generated magnetic field",
+            q: "Venus has thick CO₂ clouds",
+            pValue: false,
             qValue: true,
-            correctIsTrue: true,
-            explanation: "Biconditional (IFF): P ↔ Q is true when both have the same truth value. Both are true, so P ↔ Q = TRUE.",
-            funFact: "Venus's clouds are composed of sulfuric acid droplets, and the pressure at the surface is over 90 times Earth's atmospheric pressure."
+            correctIsTrue: false,
+            explanation: "Venus does not have its own internally generated magnetic field, but it does have thick CO₂ clouds. Since P is false, P ∧ Q = FALSE.",
+            funFact: "Venus's induced magnetic field is created by solar wind interactions with its upper atmosphere."
           }
         ],
         Earth: [
           {
-            difficulty: "easy",
-            question: "Earth has liquid water OR Earth has a protective atmosphere.",
-            operator: "OR (∨)",
-            p: "Earth has liquid water on surface",
-            q: "Earth has a protective atmosphere",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Disjunction (OR): Both P and Q are true. Since at least one (actually both) is true, P ∨ Q = TRUE.",
-            funFact: "Earth's atmosphere and liquid water together make it the only known planet with life."
-          },
-          {
-            difficulty: "medium",
-            question: "Earth supports life AND Earth is the only planet with life.",
-            operator: "AND (∧)",
-            p: "Earth supports life",
-            q: "Earth is the only known planet with confirmed life",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Conjunction (AND): Both P and Q are true. We have confirmed life on Earth, and no other planet has confirmed life yet.",
-            funFact: "About 71% of Earth's surface is covered by water, which is essential for all known life forms."
-          },
-          {
-            difficulty: "hard",
-            question: "IF Earth has the largest moon THEN Earth is the largest planet.",
-            operator: "IMPLIES (→)",
-            p: "Earth has the largest moon in the solar system",
-            q: "Earth is the largest planet in the solar system",
+            question: "Statement P: Earth has liquid water in its atmosphere.\nStatement Q: Earth supports complex life.\n\nEvaluate: P ∧ Q",
+            operator: "Conjunction (∧)",
+            p: "Earth has liquid water in its atmosphere only",
+            q: "Earth supports complex life",
             pValue: false,
-            qValue: false,
-            correctIsTrue: true,
-            explanation: "Conditional (IF-THEN): When antecedent P is false, P → Q = TRUE regardless of Q. Jupiter has the largest planets and moons.",
-            funFact: "Earth's Moon is large relative to its planet, but Jupiter is by far the largest planet in our solar system."
+            qValue: true,
+            correctIsTrue: false,
+            explanation: "Earth has liquid water on its surface (not just atmosphere). Although Q is true, since P is false, P ∧ Q = FALSE.",
+            funFact: "Liquid water on Earth's surface, not just in atmosphere, is essential for life."
           },
           {
-            difficulty: "hard",
-            question: "Earth formed recently (geologically) IF AND ONLY IF it is 4.6 billion years old.",
-            operator: "BICONDITIONAL (↔)",
-            p: "Earth is 4.6 billion years old",
-            q: "Earth is geologically young",
+            question: "Statement P: Earth is the largest planet in the solar system.\nStatement Q: Earth has one moon.\nStatement R: Earth has oxygen in atmosphere.\n\nEvaluate: P ∧ Q ∧ R",
+            operator: "Conjunction (∧)",
+            p: "Earth is the largest planet",
+            q: "Earth has one moon",
+            pValue: false,
+            qValue: true,
+            correctIsTrue: false,
+            explanation: "Earth is not the largest planet (Jupiter is). Although Q and R are true, since P is false, P ∧ Q ∧ R = FALSE.",
+            funFact: "Jupiter is so massive that over 1,000 Earths could fit inside it."
+          },
+          {
+            question: "Statement P: Earth is the largest rocky planet in the solar system.\nStatement Q: Earth is the largest planet in the solar system overall.\n\nEvaluate: P ∧ Q",
+            operator: "Conjunction (∧)",
+            p: "Earth is the largest rocky planet",
+            q: "Earth is the largest planet overall",
             pValue: true,
             qValue: false,
             correctIsTrue: false,
-            explanation: "Biconditional (IFF): P ↔ Q is true only when both have the same truth value. P is true but Q is false, so P ↔ Q = FALSE.",
-            funFact: "While 4.6 billion years sounds old, Earth is middle-aged compared to the 13.8 billion year-old universe."
+            explanation: "Earth is the largest rocky planet, but it is not the largest planet overall. Since Q is false, P ∧ Q = FALSE.",
+            funFact: "Jupiter is by far the largest planet in our solar system."
           }
         ],
         Mars: [
           {
-            difficulty: "medium",
-            question: "NOT (Mars polar ice caps are made only of rock).",
-            operator: "NOT (¬)",
-            p: "Mars polar ice caps are made only of rock",
+            question: "Statement P: Mars has liquid water on its surface today.\nStatement Q: Mars has evidence of ancient water flows.\n\nEvaluate: P ∨ Q",
+            operator: "Disjunction (∨)",
+            p: "Mars has liquid water on its surface today",
+            q: "Mars has evidence of ancient water flows",
             pValue: false,
+            qValue: true,
             correctIsTrue: true,
-            explanation: "Negation (NOT): P is false (caps contain water and CO₂ ice). Therefore, ¬P = TRUE.",
-            funFact: "Mars polar caps contain water ice and carbon dioxide ice (dry ice), which grow and shrink seasonally."
+            explanation: "Mars' thin atmosphere prevents liquid water from existing long on the surface today, but there is abundant evidence of ancient river valleys, deltas, and lakebeds from about 3.5 billion years ago. Q is true, so the disjunction is TRUE.",
+            funFact: "Mars had a much thicker atmosphere and warmer climate billions of years ago when water flowed freely."
           },
           {
-            difficulty: "easy",
-            question: "Mars is red OR Mars was once wet.",
-            operator: "OR (∨)",
-            p: "Mars appears red due to iron oxide",
-            q: "Mars had flowing water in the past",
+            question: "Statement P: Mars has a strong global magnetic field.\nStatement Q: Mars atmosphere blocks solar radiation.\n\nEvaluate: P ∨ Q",
+            operator: "Disjunction (∨)",
+            p: "Mars has a strong global magnetic field",
+            q: "Mars atmosphere blocks solar radiation",
+            pValue: false,
+            qValue: false,
+            correctIsTrue: false,
+            explanation: "Mars lacks a global magnetic field and has a thin atmosphere that offers little protection. Both statements are false, so P ∨ Q = FALSE.",
+            funFact: "Mars lost its global magnetic field billions of years ago, exposing it to solar radiation."
+          },
+          {
+            question: "Statement P: Mars has two moons.\nStatement Q: Mars has a red appearance.\nStatement R: Mars has polar ice caps made only of water ice.\n\nEvaluate: (P ∧ Q) ∧ ¬R",
+            operator: "Conjunction & Negation ((P ∧ Q) ∧ ¬R)",
+            p: "Mars has two moons",
+            q: "Mars has a red appearance",
             pValue: true,
             qValue: true,
             correctIsTrue: true,
-            explanation: "Disjunction (OR): Both P and Q are true. Mars's rusty surface and evidence of ancient water make this statement TRUE.",
-            funFact: "NASA rovers have found evidence that Mars had rivers, lakes, and possibly oceans billions of years ago."
-          },
-          {
-            difficulty: "hard",
-            question: "IF Mars has no liquid water NOW THEN it never had life.",
-            operator: "IMPLIES (→)",
-            p: "Mars has no liquid water on surface today",
-            q: "Mars never had any form of life",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Conditional (IF-THEN): P is true and Q is true. P → Q = TRUE. (Though Q is uncertain, current evidence supports it.)",
-            funFact: "Perseverance rover found potential biosignatures in ancient rocks, suggesting Mars may have hosted microbial life long ago."
-          },
-          {
-            difficulty: "hard",
-            question: "Mars is called the Red Planet IF AND ONLY IF it has iron oxide on its surface.",
-            operator: "BICONDITIONAL (↔)",
-            p: "Mars is called the Red Planet",
-            q: "Mars has iron oxide (rust) on surface",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Biconditional (IFF): Both P and Q are true, so P ↔ Q = TRUE. The red color comes from the iron oxide.",
-            funFact: "The rusty iron oxide in Mars's soil gives it the distinctive reddish appearance visible from Earth."
+            explanation: "Mars has two moons (Phobos and Deimos), appears red due to iron oxide, and has polar ice caps containing both water ice and frozen carbon dioxide (not only water ice). P∧Q is TRUE, R is FALSE so ¬R is TRUE. Result is TRUE.",
+            funFact: "Mars's two small moons, Phobos and Deimos, are named after the Greek gods of fear and panic."
           }
         ],
         Jupiter: [
           {
-            difficulty: "hard",
-            question: "Jupiter is a gas giant AND Jupiter has no solid surface.",
-            operator: "AND (∧)",
+            question: "Statement P: Jupiter is the largest planet in the solar system.\nStatement Q: Jupiter has the strongest magnetic field of all planets.\n\nEvaluate: P → Q",
+            operator: "Conditional (→)",
+            p: "Jupiter is the largest planet in the solar system",
+            q: "Jupiter has the strongest magnetic field of all planets",
+            pValue: true,
+            qValue: true,
+            correctIsTrue: true,
+            explanation: "Jupiter is the largest planet and has a magnetic field 16-54 times more powerful than Earth's, making it the strongest planetary magnetic field. Both P and Q are true, making the conditional TRUE.",
+            funFact: "Jupiter's magnetic field is so powerful it can be detected from billions of miles away."
+          },
+          {
+            question: "Statement P: Jupiter is a gas giant.\nStatement Q: Jupiter has no solid surface to land on.\n\nEvaluate: P ↔ Q",
+            operator: "Biconditional (↔)",
             p: "Jupiter is a gas giant",
-            q: "Jupiter has no solid surface like Earth",
+            q: "Jupiter has no solid surface to land on",
             pValue: true,
             qValue: true,
             correctIsTrue: true,
-            explanation: "Conjunction (AND): Both P and Q are true. Jupiter is made mostly of hydrogen and helium with no solid crust.",
-            funFact: "Jupiter's Great Red Spot is a giant storm larger than Earth that has been observed for hundreds of years."
+            explanation: "As a gas giant, Jupiter doesn't have a true surface and is mostly swirling gases and liquids deeper down. Both statements are true and definitionally related, making the biconditional TRUE.",
+            funFact: "The densest parts of Jupiter are at the core, where extreme pressure creates exotic states of matter."
           },
           {
-            difficulty: "easy",
-            question: "Jupiter is the largest planet OR Saturn is the largest planet.",
-            operator: "OR (∨)",
-            p: "Jupiter is the largest planet",
-            q: "Saturn is the largest planet",
-            pValue: true,
-            qValue: false,
-            correctIsTrue: true,
-            explanation: "Disjunction (OR): P is true and Q is false. Since at least one is true, P ∨ Q = TRUE.",
-            funFact: "Jupiter is by far the largest planet. More than 1,000 Earths could fit inside it!"
-          },
-          {
-            difficulty: "hard",
-            question: "IF Jupiter were made of rock THEN it would be a terrestrial planet.",
-            operator: "IMPLIES (→)",
-            p: "Jupiter is made of rock",
-            q: "Jupiter is a terrestrial planet",
+            question: "Statement P: Jupiter is made of solid rock.\nStatement Q: Jupiter has a magnetic field.\nStatement R: Jupiter is the largest planet.\n\nEvaluate: P ∧ Q ∧ R",
+            operator: "Conjunction (∧)",
+            p: "Jupiter is made of solid rock",
+            q: "Jupiter has a magnetic field",
             pValue: false,
-            qValue: false,
-            correctIsTrue: true,
-            explanation: "Conditional (IF-THEN): P is false (Jupiter is gas), so P → Q = TRUE regardless of Q.",
-            funFact: "Jupiter's composition of mostly hydrogen and helium makes it fundamentally different from rocky terrestrial planets."
-          },
-          {
-            difficulty: "hard",
-            question: "Jupiter has moons IF AND ONLY IF it has a gravitational field.",
-            operator: "BICONDITIONAL (↔)",
-            p: "Jupiter has many moons (95+)",
-            q: "Jupiter has a strong gravitational field",
-            pValue: true,
             qValue: true,
-            correctIsTrue: true,
-            explanation: "Biconditional (IFF): Both P and Q are true. Jupiter's gravity captured and holds many moons.",
-            funFact: "Jupiter's four large Galilean moons (Io, Europa, Ganymede, Callisto) are visible through even small telescopes."
+            correctIsTrue: false,
+            explanation: "Jupiter is a gas giant, not solid rock. Although Q and R are true, since P is false, P ∧ Q ∧ R = FALSE.",
+            funFact: "Jupiter is composed mostly of hydrogen and helium with no solid surface."
           }
         ],
         Saturn: [
           {
-            difficulty: "hard",
-            question: "Saturn's rings are separate particles AND Saturn has many moons.",
-            operator: "AND (∧)",
-            p: "Saturn's rings are many separate particles",
-            q: "Saturn has many natural satellites",
+            question: "Statement P: Saturn has prominent rings.\nStatement Q: Saturn is less dense than water.\nStatement R: Saturn is NOT a gas giant.\n\nEvaluate: P ∧ Q ∧ R",
+            operator: "Conjunction (∧)",
+            p: "Saturn has prominent rings",
+            q: "Saturn is less dense than water",
             pValue: true,
             qValue: true,
-            correctIsTrue: true,
-            explanation: "Conjunction (AND): Both P and Q are true. Saturn has 146+ moons and countless ring particles.",
-            funFact: "Some of Saturn's moons act as 'shepherd moons,' using their gravity to keep ring edges sharp."
+            correctIsTrue: false,
+            explanation: "Saturn has spectacular rings and is less dense than water, but Saturn IS a gas giant (statement R was true, so ¬R is false). P ∧ Q ∧ ¬R = FALSE.",
+            funFact: "Saturn would actually float in water if we could find a bathtub large enough!"
           },
           {
-            difficulty: "easy",
-            question: "Saturn is the second largest planet OR Saturn is made of hydrogen and helium.",
-            operator: "OR (∨)",
-            p: "Saturn is the second largest planet",
-            q: "Saturn is composed of hydrogen and helium",
+            question: "Statement P: Saturn has a hexagonal jet stream at its north pole.\nStatement Q: This hexagonal pattern exists on all planets.\n\nEvaluate: P ∧ Q",
+            operator: "Conjunction (∧)",
+            p: "Saturn has a hexagonal jet stream at its north pole",
+            q: "This hexagonal pattern exists on ALL planets",
             pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Disjunction (OR): Both P and Q are true. Saturn is second only to Jupiter and is a gas giant.",
-            funFact: "Saturn is the least dense planet and would float in water if we could find a bathtub large enough!"
-          },
-          {
-            difficulty: "hard",
-            question: "IF Saturn had no rings THEN it would be indistinguishable from Jupiter.",
-            operator: "IMPLIES (→)",
-            p: "Saturn had no rings",
-            q: "Saturn would look identical to Jupiter",
-            pValue: false,
             qValue: false,
-            correctIsTrue: true,
-            explanation: "Conditional (IF-THEN): P is false (Saturn has spectacular rings), so P → Q = TRUE.",
-            funFact: "Saturn's rings are composed of water ice, rock, and dust ranging from tiny particles to mountain-sized objects."
+            correctIsTrue: false,
+            explanation: "Saturn's north pole does have a unique six-sided jet stream, but this pattern does NOT exist on other planets. Since Q is false, P ∧ Q = FALSE.",
+            funFact: "Saturn's hexagonal jet stream is one of the most peculiar and mysterious atmospheric features in the solar system."
           },
           {
-            difficulty: "hard",
-            question: "Saturn has rings IF AND ONLY IF it is composed of ice and rock particles.",
-            operator: "BICONDITIONAL (↔)",
-            p: "Saturn has a ring system",
-            q: "The rings are made of ice and rock",
-            pValue: true,
+            question: "Statement P: Saturn is the only planet with moons.\nStatement Q: Many planets have moons.\n\nEvaluate: P ∧ Q",
+            operator: "Conjunction (∧)",
+            p: "Saturn is the only planet with moons",
+            q: "Many planets have moons",
+            pValue: false,
             qValue: true,
-            correctIsTrue: true,
-            explanation: "Biconditional (IFF): Both P and Q are true. Saturn's distinctive rings are indeed composed of these materials.",
-            funFact: "Saturn's rings span over 100,000 miles but in some places are only a few thousand feet thick!"
+            correctIsTrue: false,
+            explanation: "Saturn is not the only planet with moons. Many planets have moons. Since P is false, P ∧ Q = FALSE.",
+            funFact: "All of the gas giants and many terrestrial planets have moons in our solar system."
           }
         ],
         Uranus: [
           {
-            difficulty: "hard",
-            question: "Uranus rotates on its side AND Uranus is an ice giant.",
-            operator: "AND (∧)",
-            p: "Uranus rotates tilted ~98° on its side",
-            q: "Uranus is an ice giant",
-            pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Conjunction (AND): Both P and Q are true. Uranus's extreme tilt and composition make this statement TRUE.",
-            funFact: "Because of its extreme tilt, one pole of Uranus can face the Sun for many years while the other pole stays dark."
-          },
-          {
-            difficulty: "medium",
-            question: "NOT (Uranus has no rings).",
-            operator: "NOT (¬)",
-            p: "Uranus has no rings",
+            question: "Statement P: Uranus rotates upright like most planets.\nStatement Q: Uranus appears blue-green in color.\n\nEvaluate: P ∨ Q",
+            operator: "Disjunction (∨)",
+            p: "Uranus rotates upright like most planets",
+            q: "Uranus appears blue-green in color",
             pValue: false,
+            qValue: true,
             correctIsTrue: true,
-            explanation: "Negation (NOT): P is false (Uranus has 13 faint rings). Therefore, ¬P = TRUE.",
-            funFact: "Uranus's rings are vertical due to the planet's extreme tilt, appearing to orbit like a spinning hula hoop."
+            explanation: "Uranus does not rotate upright; it rotates on its side at 98° tilt. But Q is true, so P ∨ Q = TRUE.",
+            funFact: "Uranus essentially rolls around the Sun like a ball due to its extreme 98-degree axial tilt."
           },
           {
-            difficulty: "hard",
-            question: "IF Uranus were closer to the Sun THEN it would be warmer than Neptune.",
-            operator: "IMPLIES (→)",
-            p: "Uranus is closer to the Sun than Neptune",
-            q: "Uranus is warmer than Neptune",
-            pValue: true,
-            qValue: false,
-            correctIsTrue: false,
-            explanation: "Conditional (IF-THEN): P is true but Q is false. When first is true and second false, P → Q = FALSE.",
-            funFact: "Surprisingly, Uranus is colder than Neptune despite being closer to the Sun!"
-          },
-          {
-            difficulty: "hard",
-            question: "Uranus is the third largest planet IF AND ONLY IF it is about 4x wider than Earth.",
-            operator: "BICONDITIONAL (↔)",
-            p: "Uranus is the third largest planet",
-            q: "Uranus is about 4 times wider than Earth",
+            question: "Statement P: Uranus is an ice giant.\nStatement Q: Most of Uranus' mass is made of water, methane, and ammonia.\n\nEvaluate: P → Q",
+            operator: "Conditional (→)",
+            p: "Uranus is an ice giant",
+            q: "Most of Uranus' mass is made of water, methane, and ammonia",
             pValue: true,
             qValue: true,
             correctIsTrue: true,
-            explanation: "Biconditional (IFF): Both P and Q are true. Uranus's size makes it third only after Jupiter and Saturn.",
-            funFact: "Voyager 2 is the only spacecraft to have visited Uranus, discovering many moons during its 1986 flyby."
+            explanation: "Uranus is one of two ice giants. Most (80% or more) of the planet's mass is made up of a hot dense fluid of 'icy' materials – water, methane, and ammonia. Both P and Q are true, making the conditional TRUE.",
+            funFact: "The 'ice' in ice giants doesn't mean frozen solid—it refers to the composition of dense exotic materials."
+          },
+          {
+            question: "Statement P: Uranus has a magnetic field aligned with its rotation axis.\nStatement Q: Uranus has auroras aligned with its poles.\n\nEvaluate: P ↔ Q",
+            operator: "Biconditional (↔)",
+            p: "Uranus has aligned magnetic field",
+            q: "Uranus has pole-aligned auroras",
+            pValue: false,
+            qValue: false,
+            correctIsTrue: true,
+            explanation: "Uranus's magnetic axis is tilted nearly 60 degrees from its rotation axis, so it's not aligned. Its auroras are not in line with the poles. Both statements are false, so ¬P ↔ ¬Q = TRUE.",
+            funFact: "Uranus's extreme magnetic tilt creates unusual aurora patterns that don't align with its poles."
           }
         ],
         Neptune: [
           {
-            difficulty: "medium",
-            question: "Neptune is the farthest planet OR Neptune has the strongest winds.",
-            operator: "OR (∨)",
-            p: "Neptune is the farthest planet from Sun",
-            q: "Neptune has the strongest winds in solar system",
+            question: "Statement P: Neptune is the farthest planet from the Sun.\nStatement Q: Neptune has the strongest winds in the solar system.\nStatement R: Neptune is blue in color.\n\nEvaluate: P ∧ Q ∧ R",
+            operator: "Conjunction (∧)",
+            p: "Neptune is the farthest planet from the Sun",
+            q: "Neptune has the strongest winds in the solar system",
             pValue: true,
             qValue: true,
             correctIsTrue: true,
-            explanation: "Disjunction (OR): Both P and Q are true. Neptune exceeds 1,200 mph winds despite being most distant.",
-            funFact: "Neptune was the first planet discovered using mathematics to predict its position!"
+            explanation: "Neptune is the eighth and farthest planet from the Sun. Neptune's winds can exceed 1,200 mph (2,000 km/h), three times stronger than Jupiter's and nine times stronger than Earth's. Neptune appears blue due to methane. All three statements are true.",
+            funFact: "Neptune's winds are powered partly by internal heat, despite receiving very little solar energy."
           },
           {
-            difficulty: "hard",
-            question: "Neptune is an ice giant AND Neptune has less solar energy than Uranus.",
-            operator: "AND (∧)",
-            p: "Neptune is an ice giant",
-            q: "Neptune receives less solar energy than Uranus",
+            question: "Statement P: Neptune is far from the Sun with low energy input.\nStatement Q: Neptune has weak or no winds.\n\nEvaluate: P → Q",
+            operator: "Conditional (→)",
+            p: "Neptune is far from the Sun with low energy input",
+            q: "Neptune has weak or no winds",
             pValue: true,
-            qValue: true,
-            correctIsTrue: true,
-            explanation: "Conjunction (AND): Both P and Q are true. Neptune's composition and distant location make both statements TRUE.",
-            funFact: "Scientists hypothesize Neptune's internal heat source drives its powerful atmospheric circulation."
-          },
-          {
-            difficulty: "hard",
-            question: "IF Neptune had no internal heat source THEN it would have weaker winds than Uranus.",
-            operator: "IMPLIES (→)",
-            p: "Neptune has no internal heat",
-            q: "Neptune has weaker winds than Uranus",
-            pValue: false,
             qValue: false,
-            correctIsTrue: true,
-            explanation: "Conditional (IF-THEN): P is false (Neptune has internal heat). P → Q = TRUE.",
-            funFact: "Neptune's internal heat is a mystery, but it likely explains its extreme wind speeds."
+            correctIsTrue: false,
+            explanation: "Despite its great distance and low energy input from the Sun, Neptune is our solar system's windiest world with winds exceeding 1,200 mph. P is TRUE but Q is FALSE, making the conditional FALSE.",
+            funFact: "Neptune's powerful winds are one of the greatest mysteries in planetary science."
           },
           {
-            difficulty: "hard",
-            question: "Neptune was discovered by telescope IF AND ONLY IF its position was not predicted by math.",
-            operator: "BICONDITIONAL (↔)",
-            p: "Neptune was discovered by telescope observation",
-            q: "Neptune's position was predicted by mathematics first",
+            question: "Statement P: Neptune was discovered by mathematical prediction.\nStatement Q: Neptune position was confirmed by telescope.\n\nEvaluate: P ∧ Q",
+            operator: "Conjunction (∧)",
+            p: "Neptune was discovered by mathematical prediction",
+            q: "Neptune position was confirmed by telescope",
             pValue: true,
             qValue: true,
-            correctIsTrue: false,
-            explanation: "Biconditional (IFF): Both P and Q are true, but the IFF statement reverses the logic. Neptune was discovered AFTER prediction, so P ↔ ¬Q = TRUE.",
-            funFact: "Neptune's position was mathematically predicted before it was ever observed through a telescope in 1846!"
+            correctIsTrue: true,
+            explanation: "Neptune was mathematically predicted and then confirmed through telescope observation. Both statements are true, so P ∧ Q = TRUE.",
+            funFact: "Neptune was mathematically predicted before it was ever directly observed through a telescope in 1846."
           }
         ]
       };
@@ -1979,7 +1731,6 @@
       const quizWrapper = document.getElementById("quizWrapper");
       const quizCard = document.getElementById("quizCard");
       const quizPlanetNameEl = document.getElementById("quizPlanetName");
-      const difficultyPillEl = document.getElementById("difficultyPill");
       const questionTextEl = document.getElementById("questionText");
       const truthFactCellEl = document.getElementById("truthFactCell");
       const truthAnswerCellEl = document.getElementById("truthAnswerCell");
@@ -1998,7 +1749,6 @@
       const btnRestart = document.getElementById("btnRestart");
       const musicToggle = document.getElementById("musicToggle");
       const bgMusic = document.getElementById("bgMusic");
-      const hudStateLabel = document.getElementById("hud-state-label");
       const quizMetaEl = document.getElementById("quizMeta");
 
       // Cache DOM queries
@@ -2013,7 +1763,7 @@
       let orbitTime = 0;
 
       const orbitRadii = [80, 110, 145, 180, 260, 310, 360, 410];
-      const orbitSpeeds = [1.8, 1.5, 1.2, 1.0, 0.6, 0.5, 0.45, 0.4];
+      const orbitSpeeds = [4.1, 1.6, 1.0, 0.53, 0.35, 0.18, 0.095, 0.055];
 
       // Solar system facts for countdown
       const introFacts = [
@@ -2031,22 +1781,6 @@
         return arr;
       }
 
-      function setDifficultyPill(difficulty) {
-        difficultyPillEl.classList.remove("difficulty-easy", "difficulty-medium", "difficulty-hard");
-        let label = "Difficulty: ";
-        if (difficulty === "easy") {
-          label += "Easy";
-          difficultyPillEl.classList.add("difficulty-easy");
-        } else if (difficulty === "medium") {
-          label += "Medium";
-          difficultyPillEl.classList.add("difficulty-medium");
-        } else {
-          label += "Hard";
-          difficultyPillEl.classList.add("difficulty-hard");
-        }
-        difficultyPillEl.textContent = label;
-      }
-
       function highlightCurrentPlanet(index) {
         planetElements.forEach((el) => el.classList.remove("highlighted"));
         const match = planetElements.find((el) => Number(el.dataset.planetIndex) === index);
@@ -2062,7 +1796,6 @@
       function startCountdown() {
         if (hasLaunched) return;
         hasLaunched = true;
-        hudStateLabel.textContent = "Countdown in progress";
 
         solarSystemEl.classList.add("dimmed");
         document.body.classList.add("top-down-view");
@@ -2100,8 +1833,6 @@
         
         // Pause expensive animations during quiz
         solarSystemEl.style.animationPlayState = "paused";
-        
-        hudStateLabel.textContent = "Top-down view: logic mission in progress";
 
         currentPlanetIndex = 0;
         score = 0;
@@ -2120,7 +1851,6 @@
 
         quizCard.dataset.planet = planet.name;
         quizPlanetNameEl.textContent = planet.name;
-        setDifficultyPill(planet.difficulty);
         questionTextEl.textContent =
           "Decide whether this statement is true (T) or false (F) in the last column of the truth table.";
         truthFactCellEl.textContent = planet.question;
@@ -2214,7 +1944,6 @@
 
         summaryWrapper.classList.add("visible");
         summaryWrapper.setAttribute("aria-hidden", "false");
-        hudStateLabel.textContent = "Mission complete";
       }
 
       function restartMission() {
@@ -2223,7 +1952,6 @@
         currentPlanetIndex = 0;
         summaryWrapper.classList.remove("visible");
         summaryWrapper.setAttribute("aria-hidden", "true");
-        hudStateLabel.textContent = "Awaiting launch";
         solarSystemEl.classList.remove("top-down");
         solarSystemEl.classList.add("side-view");
         
@@ -2250,7 +1978,7 @@
       }
 
       function animateOrbits(timestamp) {
-        orbitTime = timestamp * 0.00035;
+        orbitTime = timestamp * 0.0002;
         const width = solarSystemEl.clientWidth;
         const height = solarSystemEl.clientHeight;
         const centerX = width / 2;
@@ -2263,8 +1991,7 @@
           const x = centerX + radius * Math.cos(angle);
           const y = centerY + radius * Math.sin(angle);
 
-          el.style.left = x + "px";
-          el.style.top = y + "px";
+          el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
         });
 
         window.requestAnimationFrame(animateOrbits);
@@ -2278,6 +2005,11 @@
       btnNext.addEventListener("click", goToNextPlanet);
       btnRestart.addEventListener("click", restartMission);
       musicToggle.addEventListener("click", toggleMusic);
+      
+      // ADDED EVENT LISTENER FOR NEW BUTTON
+      document.getElementById('btnVisitSite').addEventListener('click', function() {
+        window.open('https://sirp0o0kiebear.wixsite.com/solar-system', '_blank');
+      });
     })();
   </script>
 </body>
