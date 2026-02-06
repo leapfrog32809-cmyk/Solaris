@@ -179,7 +179,7 @@
       filter: blur(3px);
     }
 
-    .starfield, .deep-stars, .galaxy-clouds {
+    .starfield, .deep-stars, .galaxy-clouds, .nebula-overlay, .dust-particles {
       position: absolute;
       inset: -50%; /* Make larger to cover scaling */
       width: 200%;
@@ -187,12 +187,69 @@
       pointer-events: none;
     }
 
+    .nebula-overlay {
+      background: 
+        radial-gradient(circle at 30% 40%, rgba(120, 50, 200, 0.08), transparent 45%),
+        radial-gradient(circle at 70% 60%, rgba(50, 100, 255, 0.06), transparent 45%),
+        radial-gradient(circle at 50% 10%, rgba(200, 50, 100, 0.05), transparent 50%);
+      filter: blur(80px);
+      animation: nebula-pulse 30s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    @keyframes nebula-pulse {
+      0% { opacity: 0.4; transform: scale(1); }
+      100% { opacity: 0.7; transform: scale(1.1); }
+    }
+
+    .dust-particles {
+      background-image: 
+        radial-gradient(circle, rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 300px 300px, 500px 500px;
+      background-position: 0 0, 100px 100px;
+      animation: dust-drift 120s linear infinite;
+      opacity: 0.5;
+    }
+
+    @keyframes dust-drift {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-100px, -50px); }
+    }
+
+    .deep-stars {
+      background-image: 
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 25% 45%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(2px 2px at 50% 20%, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 75% 65%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(2px 2px at 90% 10%, rgba(255,255,255,0.25), transparent);
+      background-size: 400px 400px;
+      opacity: 0.6;
+    }
+
+    .galaxy-clouds {
+      background-image: 
+        radial-gradient(circle at 20% 20%, rgba(68, 0, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 0, 100, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(0, 255, 200, 0.04) 0%, transparent 60%);
+      filter: blur(50px);
+      animation: pulse-galaxy 25s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse-galaxy {
+      0% { opacity: 0.5; transform: scale(1); }
+      100% { opacity: 0.8; transform: scale(1.05); }
+    }
+
     .starfield {
       background-image:
         radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.9) 1px, transparent 1px),
         radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.8) 1px, transparent 1px),
-        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.85) 1px, transparent 1px);
-      background-size: 250% 250%;
+        radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.85) 1px, transparent 1px),
+        radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.7) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 85% 90%, rgba(255, 255, 255, 0.7) 1.5px, transparent 1.5px);
+      background-size: 350px 350px;
       opacity: 0.9;
       mix-blend-mode: screen;
       animation: twinkle-stars 10s ease-in-out infinite alternate;
@@ -201,6 +258,146 @@
     @keyframes twinkle-stars {
       0% { opacity: 0.75; }
       100% { opacity: 0.95; }
+    }
+    
+    /* Asteroid Belt */
+    .asteroid-belt {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 500px; height: 500px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .asteroid-belt::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background-image: 
+            radial-gradient(1px 1px at 15% 15%, #999, transparent),
+            radial-gradient(1px 1px at 35% 55%, #888, transparent),
+            radial-gradient(1.5px 1.5px at 65% 25%, #aaa, transparent),
+            radial-gradient(1px 1px at 85% 75%, #777, transparent);
+        background-size: 60px 60px;
+        animation: asteroid-spin 180s linear infinite reverse;
+        opacity: 0.5;
+        mask-image: radial-gradient(closest-side, transparent 78%, black 82%, black 88%, transparent 92%);
+        -webkit-mask-image: radial-gradient(closest-side, transparent 78%, black 82%, black 88%, transparent 92%);
+    }
+
+    .asteroid-belt::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background-image: 
+            radial-gradient(1.5px 1.5px at 10% 10%, #887, transparent),
+            radial-gradient(1.5px 1.5px at 20% 30%, #776, transparent),
+            radial-gradient(2px 2px at 40% 40%, #998, transparent),
+            radial-gradient(1.5px 1.5px at 60% 20%, #887, transparent),
+            radial-gradient(1.5px 1.5px at 80% 80%, #776, transparent),
+            radial-gradient(2px 2px at 50% 90%, #998, transparent);
+        background-size: 80px 80px;
+        animation: asteroid-spin 120s linear infinite;
+        opacity: 0.7;
+        mask-image: radial-gradient(closest-side, transparent 78%, black 82%, black 88%, transparent 92%);
+        -webkit-mask-image: radial-gradient(closest-side, transparent 78%, black 82%, black 88%, transparent 92%);
+    }
+
+    @keyframes asteroid-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Comets */
+    .comet-container {
+        position: absolute;
+        inset: -50%;
+        width: 200%; height: 200%;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    .comet {
+        position: absolute;
+        width: 3px; height: 3px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #fff;
+        opacity: 0;
+    }
+    
+    .comet::after {
+        content: "";
+        position: absolute;
+        top: 50%; right: 0;
+        width: 80px; height: 1px;
+        background: linear-gradient(to left, rgba(255,255,255,0.6), transparent);
+        transform: translateY(-50%);
+    }
+    
+    .comet.one { top: 15%; left: -10%; animation: shoot 18s linear infinite 5s; }
+    .comet.two { top: 70%; left: -10%; animation: shoot 25s linear infinite 15s; }
+    
+    /* Far Galaxies */
+    .far-galaxy {
+      position: absolute;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.6;
+      filter: blur(1px);
+    }
+
+    .far-galaxy.one {
+      top: 12%; left: 75%;
+      width: 140px; height: 60px;
+      background: radial-gradient(ellipse at center, rgba(180, 200, 255, 0.3), transparent 70%);
+      transform: rotate(20deg);
+      border-radius: 50%;
+    }
+    
+    .far-galaxy.one::after {
+      content: "";
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 60%; height: 20%;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+    }
+
+    .far-galaxy.two {
+      bottom: 15%; left: 10%;
+      width: 100px; height: 100px;
+      background: radial-gradient(circle at center, rgba(255, 100, 150, 0.15), transparent 70%);
+      animation: galaxy-spin 200s linear infinite;
+    }
+
+    .far-galaxy.two::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 1px, transparent 1px),
+        radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+      background-size: 20px 20px;
+      transform: rotate(45deg);
+    }
+
+    @keyframes galaxy-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes shoot {
+        0% { transform: translateX(0) translateY(0) rotate(20deg); opacity: 0; }
+        5% { opacity: 1; }
+        20% { transform: translateX(120vw) translateY(40vh) rotate(20deg); opacity: 0; }
+        100% { opacity: 0; }
     }
 
     .orbit {
@@ -506,23 +703,33 @@
   <div class="app-shell">
     <div class="frame">
       <header class="app-header">
-        <button id="musicToggle" class="btn-ghost" type="button" aria-pressed="false">
-          <span>Music</span>
+        <button id="musicToggle" class="btn-ghost" type="button" aria-pressed="true">
+          <span>Mute</span>
         </button>
       </header>
 
       <main class="stage">
         <div class="solar-system-wrapper" id="sceneWrapper">
           <div id="solarSystem" class="solar-system">
+            <div class="nebula-overlay"></div>
             <div class="galaxy-clouds"></div>
+            <div class="far-galaxy one"></div>
+            <div class="far-galaxy two"></div>
             <div class="deep-stars"></div>
             <div class="starfield"></div>
+            <div class="dust-particles"></div>
+            
+            <div class="comet-container">
+              <div class="comet one"></div>
+              <div class="comet two"></div>
+            </div>
             
             <!-- Orbits -->
             <div class="orbit mercury animate"></div>
             <div class="orbit venus animate"></div>
             <div class="orbit earth animate"></div>
             <div class="orbit mars animate"></div>
+            <div class="asteroid-belt animate"></div>
             <div class="orbit jupiter animate"></div>
             <div class="orbit saturn animate"></div>
             <div class="orbit uranus animate"></div>
@@ -619,7 +826,7 @@
 
         <!-- Audio -->
         <audio id="bgMusic" loop>
-          <source src="dream.mp3" type="audio/mpeg" />
+          <source src="bg/Alpha(1).mp4" type="audio/mp4" />
         </audio>
       </main>
 
@@ -753,6 +960,7 @@
       const btnRestart = document.getElementById("btnRestart");
       const musicToggle = document.getElementById("musicToggle");
       const bgMusic = document.getElementById("bgMusic");
+      if (bgMusic) bgMusic.volume = 0.1;
       const quizMetaEl = document.getElementById("quizMeta");
       const planetElements = Array.from(document.querySelectorAll(".planet"));
 
@@ -850,6 +1058,11 @@
       }
 
       function startCountdown() {
+        // Ensure music is playing if autoplay failed
+        if (bgMusic && bgMusic.paused) {
+             bgMusic.play().catch(() => {});
+        }
+        
         document.body.classList.add("top-down-view");
         
         const facts = [
@@ -991,18 +1204,30 @@
 
       function toggleMusic() {
         if (!bgMusic) return;
-        if (bgMusic.paused) {
-          bgMusic.play().catch(e => console.log("Audio play failed", e));
-          musicToggle.setAttribute("aria-pressed", "true");
-          musicToggle.style.borderColor = "var(--accent)";
-        } else {
-          bgMusic.pause();
+        bgMusic.muted = !bgMusic.muted;
+        updateMusicButton();
+      }
+
+      function updateMusicButton() {
+        if (bgMusic.muted) {
+          musicToggle.innerHTML = "<span>Unmute</span>";
           musicToggle.setAttribute("aria-pressed", "false");
           musicToggle.style.borderColor = "rgba(255,215,0,0.3)";
+        } else {
+          musicToggle.innerHTML = "<span>Mute</span>";
+          musicToggle.setAttribute("aria-pressed", "true");
+          musicToggle.style.borderColor = "var(--accent)";
         }
       }
 
       // --- EVENTS ---
+      // Try to play immediately
+      if (bgMusic) {
+          bgMusic.play().catch(e => {
+              console.log("Autoplay prevented, waiting for interaction");
+          });
+      }
+
       sunEl.addEventListener("click", startCountdown);
       btnTrue.addEventListener("click", () => handleAnswer(true));
       btnFalse.addEventListener("click", () => handleAnswer(false));
