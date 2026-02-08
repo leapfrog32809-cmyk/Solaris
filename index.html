@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Solar System Logic Mission</title>
 
-  <!-- Google Font - Preconnect for better loading -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Fonts: use system stack to avoid external network dependencies -->
 
   <style>
     :root {
@@ -37,7 +34,7 @@
     }
 
     body {
-      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: linear-gradient(135deg, #020310 0%, #0a0a2e 50%, #020310 100%);
       color: var(--text-main);
       height: 100vh;
@@ -195,6 +192,7 @@
       width: 200%;
       height: 200%;
       pointer-events: none;
+      contain: layout paint size style;
     }
 
     .nebula-overlay {
@@ -268,6 +266,26 @@
     @keyframes twinkle-stars {
       0% { opacity: 0.75; }
       100% { opacity: 0.95; }
+    }
+    
+    .low-performance .nebula-overlay,
+    .low-performance .dust-particles,
+    .low-performance .far-galaxy { display: none; }
+    .low-performance .galaxy-clouds { animation: none; filter: blur(30px); }
+    .low-performance .starfield { animation: none; background-size: 500px 500px; }
+    .low-performance .deep-stars { background-size: 600px 600px; opacity: 0.5; }
+    .low-performance .comet-container { display: none; }
+    .low-performance .asteroid-belt::before,
+    .low-performance .asteroid-belt::after { animation: none; opacity: 0.4; }
+    .low-performance .orbit.animate { animation: none !important; }
+    
+    @media (prefers-reduced-motion: reduce) {
+      .orbit.animate { animation: none !important; }
+      .galaxy-clouds { animation: none; }
+      .starfield { animation: none; }
+      .comet-container { display: none; }
+      .asteroid-belt::before,
+      .asteroid-belt::after { animation: none; }
     }
     
     /* Asteroid Belt */
@@ -916,16 +934,29 @@
             
             <div class="quiz-question-heading" id="questionText" style="font-weight:600; margin-bottom:10px;"></div>
 
+            <div id="pqStatements" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;">
+              <span id="pStatement" style="background:rgba(255,255,255,0.08); padding:6px 10px; border-radius:8px; font-size:0.85rem;">P:</span>
+              <span id="qStatement" style="background:rgba(255,255,255,0.08); padding:6px 10px; border-radius:8px; font-size:0.85rem;">Q:</span>
+            </div>
+
             <table class="truth-table">
               <thead>
                 <tr>
-                  <th style="width: 75%;">Proposition</th>
-                  <th style="width: 25%;">Truth</th>
+                  <th style="width: 60%;">Statement</th>
+                  <th style="width: 40%;">Truth</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td id="truthFactCell"></td>
+                  <td id="pLabel">P</td>
+                  <td id="pValueCell">True</td>
+                </tr>
+                <tr>
+                  <td id="qLabel">Q</td>
+                  <td id="qValueCell">True</td>
+                </tr>
+                <tr>
+                  <td>Result of <span id="exprLabel">P ∧ Q</span></td>
                   <td id="truthAnswerCell" style="text-align:center; font-weight:bold; color:var(--accent);">?</td>
                 </tr>
               </tbody>
@@ -944,6 +975,11 @@
               
               <h3 style="font-size:0.9rem; color:var(--accent); margin-bottom:5px;">Did you know?</h3>
               <p id="planetFactText" style="font-size:0.85rem;"></p>
+              
+              <h3 style="font-size:0.9rem; color:var(--accent); margin:12px 0 6px;">Sources</h3>
+              <p style="font-size:0.82rem;">
+                <a id="sourceLink" href="#" target="_blank" rel="noopener noreferrer" style="color:var(--accent); text-decoration:underline;">Open NASA source</a>
+              </p>
               
               <div style="margin-top:15px; display:flex; flex-direction:column; gap:5px;">
                 <span id="progressText" style="font-size:0.7rem; color:var(--text-muted); text-align:center;">Planet 1 of 8</span>
@@ -980,74 +1016,98 @@
       const planetQuestionsBank = {
         Mercury: [
           {
-            question: "Statement P: Mercury has a thick atmosphere.\nStatement Q: Mercury has extreme temperature variations.\n\nEvaluate: ¬P ∧ Q",
-            p: "Mercury does NOT have a thick atmosphere", q: "Mercury has extreme temperature variations",
-            pValue: true, qValue: true, correctIsTrue: true,
-            explanation: "Mercury possesses a thin exosphere. Day: 800°F, Night: -290°F. Both statements are effectively true.",
-            funFact: "Mercury has the most extreme temperature swings in the solar system."
-          },
-          {
-            question: "Statement P: Mercury is closest to the Sun.\nStatement Q: Mercury is the hottest planet.\n\nEvaluate: P ∧ Q",
-            p: "Closest to Sun", q: "Hottest planet",
-            pValue: true, qValue: false, correctIsTrue: false,
-            explanation: "Venus is hotter due to atmosphere. P is True, Q is False.",
-            funFact: "Venus is hotter than Mercury despite being farther away."
+            pText: "Mercury is the closest planet to the Sun.",
+            qText: "Mercury is the hottest planet.",
+            pValue: true, qValue: false,
+            expr: "OR", exprDisplay: "P ∨ Q",
+            explanation: "P ∨ Q is True because P is True.",
+            funFact: "Mercury has extreme temperature swings: very hot days and very cold nights.",
+            sourceUrl: "https://solarsystem.nasa.gov/planets/mercury/overview/",
+            sourceTitle: "NASA: Mercury Overview"
           }
         ],
         Venus: [
           {
-            question: "Statement P: Venus rotates clockwise (retrograde).\nStatement Q: A day on Venus is shorter than a year on Venus.\n\nEvaluate: P ∧ Q",
-            pValue: true, qValue: false, correctIsTrue: false,
-            explanation: "Venus rotates backwards (P=True), but very slowly. Its day (243 Earth days) is longer than its year (225 Earth days) (Q=False).",
-            funFact: "Venus is the only planet where a day is longer than a year."
+            pText: "Venus rotates in a retrograde (clockwise) direction.",
+            qText: "Venus has a very thick atmosphere.",
+            pValue: true, qValue: true,
+            expr: "AND", exprDisplay: "P ∧ Q",
+            explanation: "P ∧ Q is True because both P and Q are True.",
+            funFact: "A day on Venus is longer than its year due to slow retrograde rotation.",
+            sourceUrl: "https://solarsystem.nasa.gov/planets/venus/overview/",
+            sourceTitle: "NASA: Venus Overview"
           }
         ],
         Earth: [
           {
-            question: "Statement P: Earth has liquid water.\nStatement Q: Earth has two moons.\n\nEvaluate: P → Q",
-            pValue: true, qValue: false, correctIsTrue: false,
-            explanation: "Earth has water (True), but only one moon (False). True → False is False.",
-            funFact: "Earth is the only planet known to harbor life."
+            pText: "Earth has liquid water at its surface.",
+            qText: "Earth has two moons.",
+            pValue: true, qValue: false,
+            expr: "IMPLIES", exprDisplay: "P → Q",
+            explanation: "P → Q is False because True → False is False.",
+            funFact: "Earth is the only known planet with abundant surface liquid water.",
+            sourceUrl: "https://solarsystem.nasa.gov/planets/earth/overview/",
+            sourceTitle: "NASA: Earth Overview"
           }
         ],
         Mars: [
           {
-            question: "Statement P: Mars is the Red Planet.\nStatement Q: Mars has two moons.\n\nEvaluate: P ∧ Q",
-            pValue: true, qValue: true, correctIsTrue: true,
-            explanation: "Mars appears red due to iron oxide. It has two moons: Phobos and Deimos.",
-            funFact: "Mars is home to Olympus Mons, the tallest volcano in the solar system."
+            pText: "Mars is the Red Planet.",
+            qText: "Mars has two moons.",
+            pValue: true, qValue: true,
+            expr: "AND", exprDisplay: "P ∧ Q",
+            explanation: "P ∧ Q is True because both P and Q are True.",
+            funFact: "Mars has two small moons: Phobos and Deimos.",
+            sourceUrl: "https://solarsystem.nasa.gov/planets/mars/overview/",
+            sourceTitle: "NASA: Mars Overview"
           }
         ],
         Jupiter: [
           {
-            question: "Statement P: Jupiter is the largest planet.\nStatement Q: Jupiter has a solid surface.\n\nEvaluate: P ∧ Q",
-            pValue: true, qValue: false, correctIsTrue: false,
-            explanation: "Jupiter is the largest (True), but it is a gas giant with no true solid surface (False).",
-            funFact: "Jupiter's mass is more than twice that of all other planets combined."
+            pText: "Jupiter is the largest planet.",
+            qText: "Jupiter has a solid surface.",
+            pValue: true, qValue: false,
+            expr: "AND", exprDisplay: "P ∧ Q",
+            explanation: "P ∧ Q is False because Q is False.",
+            funFact: "Jupiter is the largest planet, with a mass greater than all others combined.",
+            sourceUrl: "https://solarsystem.nasa.gov/planets/jupiter/overview/",
+            sourceTitle: "NASA: Jupiter Overview"
           }
         ],
         Saturn: [
           {
-            question: "Statement P: Saturn is the only planet with rings.\nStatement Q: Saturn is a gas giant.\n\nEvaluate: P → Q",
-            pValue: false, qValue: true, correctIsTrue: true, // F -> T is True
-            explanation: "Jupiter, Uranus, and Neptune also have rings (P=False). Saturn is a gas giant (Q=True).",
-            funFact: "Saturn is the only planet that is less dense than water."
+            pText: "Saturn is a gas giant.",
+            qText: "Saturn is the only planet with rings.",
+            pValue: true, qValue: false,
+            expr: "AND", exprDisplay: "P ∧ Q",
+            explanation: "P ∧ Q is False because Q is False.",
+            funFact: "Saturn’s rings are the most prominent but other giants have rings too.",
+            sourceUrl: "https://solarsystem.nasa.gov/planets/saturn/overview/",
+            sourceTitle: "NASA: Saturn Overview"
           }
         ],
         Uranus: [
           {
-            question: "Statement P: Uranus is the hottest planet.\nStatement Q: Uranus has no rings.\n\nEvaluate: P ∨ Q",
-            pValue: false, qValue: false, correctIsTrue: false,
-            explanation: "Uranus is an ice giant (very cold, P=False) and it DOES have rings (Q=False).",
-            funFact: "Uranus was the first planet found with the aid of a telescope."
+            pText: "Uranus has rings.",
+            qText: "Uranus has no rings.",
+            pValue: true, qValue: false,
+            expr: "OR", exprDisplay: "P ∨ Q",
+            explanation: "P ∨ Q is True because P is True.",
+            funFact: "Uranus rotates on its side, likely due to a massive ancient collision.",
+            sourceUrl: "https://solarsystem.nasa.gov/planets/uranus/overview/",
+            sourceTitle: "NASA: Uranus Overview"
           }
         ],
         Neptune: [
           {
-            question: "Statement P: Neptune is visible to the naked eye.\nStatement Q: Neptune has strong winds.\n\nEvaluate: ¬P ∧ Q",
-            pValue: false, qValue: true, correctIsTrue: true,
-            explanation: "Neptune is too far to be seen without a telescope (P=False). Its winds reach 1,200 mph (Q=True).",
-            funFact: "Neptune was the first planet located through mathematical calculations."
+            pText: "Neptune is not visible to the naked eye.",
+            qText: "Neptune has strong winds.",
+            pValue: true, qValue: true,
+            expr: "AND", exprDisplay: "P ∧ Q",
+            explanation: "P ∧ Q is True: Neptune requires a telescope and has extreme winds.",
+            funFact: "Neptune’s winds can exceed 1,200 mph, the fastest in the solar system.",
+            sourceUrl: "https://solarsystem.nasa.gov/planets/neptune/overview/",
+            sourceTitle: "NASA: Neptune Overview"
           }
         ]
       };
@@ -1060,12 +1120,12 @@
 
       const planets = [
         { name: "Mercury", ...getRandomQuestion("Mercury") },
-        { name: "Venus", ...getRandomQuestion("Venus") },
-        { name: "Earth", ...getRandomQuestion("Earth") },
-        { name: "Mars", ...getRandomQuestion("Mars") },
+        { name: "Venus",   ...getRandomQuestion("Venus") },
+        { name: "Earth",   ...getRandomQuestion("Earth") },
+        { name: "Mars",    ...getRandomQuestion("Mars") },
         { name: "Jupiter", ...getRandomQuestion("Jupiter") },
-        { name: "Saturn", ...getRandomQuestion("Saturn") },
-        { name: "Uranus", ...getRandomQuestion("Uranus") },
+        { name: "Saturn",  ...getRandomQuestion("Saturn") },
+        { name: "Uranus",  ...getRandomQuestion("Uranus") },
         { name: "Neptune", ...getRandomQuestion("Neptune") }
       ];
 
@@ -1081,8 +1141,13 @@
       const quizPlanetNameEl = document.getElementById("quizPlanetName");
       const quizPlanetThumbEl = document.getElementById("quizPlanetThumb");
       const questionTextEl = document.getElementById("questionText");
-      const truthFactCellEl = document.getElementById("truthFactCell");
+      const pStatementEl = document.getElementById("pStatement");
+      const qStatementEl = document.getElementById("qStatement");
+      const pValueCellEl = document.getElementById("pValueCell");
+      const qValueCellEl = document.getElementById("qValueCell");
+      const exprLabelEl = document.getElementById("exprLabel");
       const truthAnswerCellEl = document.getElementById("truthAnswerCell");
+      const sourceLinkEl = document.getElementById("sourceLink");
       const btnTrue = document.getElementById("btnTrue");
       const btnFalse = document.getElementById("btnFalse");
       const answerStatusEl = document.getElementById("answerStatus");
@@ -1111,26 +1176,44 @@
       const SAFE_PADDING = 40;
 
       function handleResize() {
-        if (!sceneWrapper || !solarSystemEl) return;
-        
-        const availableWidth = sceneWrapper.clientWidth;
-        const availableHeight = sceneWrapper.clientHeight;
-        
+        if (!solarSystemEl) return;
+        const availableWidth = window.innerWidth;
+        const availableHeight = window.innerHeight;
         const minDimension = Math.min(availableWidth, availableHeight);
         let scaleFactor = (minDimension - SAFE_PADDING) / MAX_ORBIT_DIAMETER;
-        scaleFactor = Math.min(scaleFactor, 1.2);
-        
+        scaleFactor = Math.max(0.6, Math.min(scaleFactor, 1.2));
         solarSystemEl.style.transform = `scale(${scaleFactor})`;
       }
 
       window.addEventListener('resize', handleResize);
+      window.addEventListener('orientationchange', handleResize);
       setTimeout(handleResize, 100);
+
+      // --- PERFORMANCE MODE ---
+      function detectPerformanceMode() {
+        const cores = navigator.hardwareConcurrency || 2;
+        const isMobile = /Android|Mobi|iPhone|iPad/i.test(navigator.userAgent);
+        const dpr = window.devicePixelRatio || 1;
+        return (cores <= 4) || (isMobile && dpr >= 2) ? "low" : "high";
+      }
+      const performanceMode = detectPerformanceMode();
+      if (performanceMode === "low") {
+        solarSystemEl.classList.add("low-performance");
+      }
 
       // --- ORBIT LOGIC ---
       const orbitRadii = [80, 110, 145, 180, 260, 310, 360, 410];
       const orbitSpeeds = [4.1, 1.6, 1.0, 0.53, 0.35, 0.18, 0.095, 0.055];
 
+      let lastTick = 0;
+      const targetFrameMs = performanceMode === "low" ? 50 : 16;
+
       function animateOrbits(timestamp) {
+        if ((timestamp - lastTick) < targetFrameMs) {
+          animationFrameId = window.requestAnimationFrame(animateOrbits);
+          return;
+        }
+        lastTick = timestamp;
         const orbitTime = timestamp * 0.0002;
         const centerX = 500; 
         const centerY = 500;
@@ -1154,7 +1237,18 @@
         animationFrameId = window.requestAnimationFrame(animateOrbits);
       }
       
-      animationFrameId = window.requestAnimationFrame(animateOrbits);
+      function startOrbitAnimation() {
+        if (!animationFrameId) {
+          animationFrameId = window.requestAnimationFrame(animateOrbits);
+        }
+      }
+      function stopOrbitAnimation() {
+        if (animationFrameId) {
+          window.cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+      }
+      startOrbitAnimation();
 
       // --- GAMEPLAY FUNCTIONS ---
 
@@ -1166,6 +1260,7 @@
 
       function startCountdown() {
         document.body.classList.add("top-down-view");
+        stopOrbitAnimation();
         
         const facts = [
             "Inner planets are rock; outer planets are gas/ice.",
@@ -1202,6 +1297,7 @@
         countdownOverlay.classList.remove("visible");
         countdownOverlay.setAttribute("aria-hidden", "true");
         solarSystemEl.classList.remove("dimmed");
+        startOrbitAnimation();
         
         currentPlanetIndex = 0;
         score = 0;
@@ -1211,6 +1307,16 @@
 
         showQuestionForPlanet(currentPlanetIndex);
       }
+
+      function evalExpr(expr, p, q) {
+        if (expr === "AND") return p && q;
+        if (expr === "OR") return p || q;
+        if (expr === "IMPLIES") return (!p || q);
+        if (expr === "NOT_P_AND_Q") return (!p && q);
+        return false;
+      }
+
+      /* simplified UI: no full truth table */
 
       function showQuestionForPlanet(index) {
         const planet = planets[index];
@@ -1224,8 +1330,17 @@
           const cls = planet.name.toLowerCase();
           quizPlanetThumbEl.className = `quiz-planet-thumb ${cls}`;
         }
-        questionTextEl.textContent = "Evaluate the Truth Table";
-        truthFactCellEl.innerText = planet.question;
+        questionTextEl.textContent = `Evaluate: ${planet.exprDisplay}`;
+        pStatementEl.textContent = `P: ${planet.pText}`;
+        qStatementEl.textContent = `Q: ${planet.qText}`;
+        exprLabelEl.textContent = planet.exprDisplay;
+        pValueCellEl.textContent = planet.pValue ? "True" : "False";
+        qValueCellEl.textContent = planet.qValue ? "True" : "False";
+        if (sourceLinkEl && planet.sourceUrl) {
+          sourceLinkEl.href = planet.sourceUrl;
+          sourceLinkEl.textContent = planet.sourceTitle || "Open NASA source";
+        }
+        planet.correctIsTrue = evalExpr(planet.expr, planet.pValue, planet.qValue);
         truthAnswerCellEl.textContent = "?";
         truthAnswerCellEl.style.color = "var(--accent)";
 
@@ -1284,6 +1399,7 @@
         quizWrapper.classList.remove("visible");
         quizWrapper.setAttribute("aria-hidden", "true");
         planetElements.forEach(el => el.classList.remove("highlighted"));
+        stopOrbitAnimation();
 
         const accuracy = Math.round((score / planets.length) * 100);
         summaryScoreEl.textContent = `${score} / ${planets.length}`;
@@ -1309,6 +1425,10 @@
 
       // --- EVENTS ---
       sunEl.addEventListener("click", startCountdown);
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) stopOrbitAnimation();
+        else startOrbitAnimation();
+      });
       btnTrue.addEventListener("click", () => handleAnswer(true));
       btnFalse.addEventListener("click", () => handleAnswer(false));
       btnNext.addEventListener("click", goToNextPlanet);
